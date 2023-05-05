@@ -1,0 +1,46 @@
+{
+  "name": "simple-math",
+  "client": {
+    "module": "octopus.elixir-module-client",
+    "start": {
+      "code": [
+        "defmodule SimpleMath do",
+          "def add(%{\"a\" => a, \"b\" => b}) do",
+            "%{\"sum\" => a + b}",
+          "end",
+
+          "def mult_by_two(%{\"x\" => x}) do",
+            "%{\"result\" => x * 2}",
+          "end",
+        "end"
+      ]
+    }
+  },
+  "interface": {
+    "add": {
+      "input": {
+        "a": {"type": "number"},
+        "b": {"type": "number"}
+      },
+      "call": {
+        "module": "SimpleMath",
+        "function": "add"
+      },
+      "output": {
+        "sum": {"type": "number"}
+      }
+    },
+    "mult_by_two": {
+      "input": {
+        "x": {"type": "number"}
+      },
+      "call": {
+        "module": "SimpleMath",
+        "function": "mult_by_two"
+      },
+      "output": {
+        "result": {"type": "number"}
+      }
+    }
+  }
+}

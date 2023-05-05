@@ -1,0 +1,2 @@
+defmodule Kraken do
+end
