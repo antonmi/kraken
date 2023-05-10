@@ -1,7 +1,8 @@
 defmodule Kraken.Utils do
-  alias Octopus.Utils
+  @moduledoc "Utitilit functions"
 
-  defdelegate modulize(string), to: Utils
+  defdelegate modulize(string), to: Octopus.Utils
+  defdelegate eval_string(string, args), to: Octopus.Eval
 
   def eval_code(code) do
     quoted = Code.string_to_quoted!(code)

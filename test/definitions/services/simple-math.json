@@ -12,6 +12,10 @@
           "def mult_by_two(%{\"x\" => x}) do",
             "%{\"result\" => x * 2}",
           "end",
+
+          "def add_one(%{\"x\" => x}) do",
+            "%{\"result\" => x + 1}",
+          "end",
         "end"
       ]
     }
@@ -37,6 +41,18 @@
       "call": {
         "module": "SimpleMath",
         "function": "mult_by_two"
+      },
+      "output": {
+        "result": {"type": "number"}
+      }
+    },
+    "add_one": {
+      "input": {
+        "x": {"type": "number"}
+      },
+      "call": {
+        "module": "SimpleMath",
+        "function": "add_one"
       },
       "output": {
         "result": {"type": "number"}

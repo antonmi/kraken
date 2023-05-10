@@ -15,10 +15,11 @@ defmodule Kraken.Define.StageTest do
 
   setup do
     define_and_start_service("simple-math")
-    on_exit fn ->
+
+    on_exit(fn ->
       Octopus.stop("simple-math")
       Octopus.delete("simple-math")
-    end
+    end)
   end
 
   test "simple-math service" do
@@ -33,9 +34,11 @@ defmodule Kraken.Define.StageTest do
       "name" => "simple-math",
       "function" => "add"
     },
-    "opts" => %{},  # TODO it seems that the only way to use it is in "download" and "upload".
+    # TODO it seems that the only way to use it is in "download" and "upload".
+    "opts" => %{},
     "download" => %{
-      "a" => "args['x']",  # TODO what if opts can be accessed here?
+      # TODO what if opts can be accessed here?
+      "a" => "args['x']",
       "b" => "args['y']"
     },
     "upload" => %{

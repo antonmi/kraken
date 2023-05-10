@@ -6,10 +6,13 @@ defmodule Kraken.Define.Stage do
       "#{pipeline_module}.#{definition["name"]}"
       |> Utils.modulize()
       |> String.to_atom()
+
     download = Map.get(definition, "download", false)
     upload = Map.get(definition, "upload", false)
     service_name = get_in(definition, ["service", "name"]) || raise "Missing service name!"
-    service_function = get_in(definition, ["service", "function"]) || raise "Missing service function!"
+
+    service_function =
+      get_in(definition, ["service", "function"]) || raise "Missing service function!"
 
     template()
     |> EEx.eval_string(
@@ -18,12 +21,13 @@ defmodule Kraken.Define.Stage do
       service_function: service_function,
       download: download,
       upload: upload,
-      helpers: [] # TODO helper_modules(definition.helpers)
+      # TODO helper_modules(definition.helpers)
+      helpers: []
     )
     |> Utils.eval_code()
     |> case do
       {:ok, _code} ->
-         {:ok, stage_module}
+        {:ok, stage_module}
     end
   end
 
@@ -81,20 +85,19 @@ defmodule Kraken.Define.Stage do
 
     @spec call(%__MODULE__{}) :: {:ok, map()} | {:error, any()}
     def call(%__MODULE__{
-      event: event,
-      service_name: service_name,
-      service_function: service_function,
-      download: download,
-      upload: upload,
-      helpers: helpers
-    }) do
+          event: event,
+          service_name: service_name,
+          service_function: service_function,
+          download: download,
+          upload: upload,
+          helpers: helpers
+        }) do
       with {:ok, args} <-
              Transform.transform(event, download, helpers),
            {:ok, args} <-
              Octopus.call(service_name, service_function, args),
            {:ok, event} <-
-             Transform.transform(args, upload, helpers)
-        do
+             Transform.transform(args, upload, helpers) do
         {:ok, event}
       else
         {:error, error} -> {:error, error}
