@@ -1,13 +1,11 @@
-defmodule Kraken.Define.CloneWithDeadEndTest do
+defmodule Kraken.Define.GotoTest do
   use ExUnit.Case
 
   alias Kraken.Test.Definitions
   alias Kraken.Define.Clone
   alias Kraken.Define.Pipeline
 
-  import ExUnit.CaptureLog
-
-  describe "simple pipeline with clone and dead-end" do
+  describe "simple pipeline with goto" do
     def define_and_start_service(name) do
       {:ok, ^name} =
         "services/#{name}.json"
@@ -34,59 +32,40 @@ defmodule Kraken.Define.CloneWithDeadEndTest do
 
     @components [
       %{
-        "type" => "stage",
-        "name" => "add",
-        "service" => %{
-          "name" => "simple-math",
-          "function" => "add"
-        }
-      },
-      %{
-        "type" => "clone",
-        "name" => "my-clone",
-        "to" => [
-          %{
-            "type" => "stage",
-            "name" => "log",
-            "service" => %{
-              "name" => "simple-math",
-              "function" => "log"
-            }
-          },
-          %{
-            "type" => "dead-end",
-            "name" => "dead-end"
-          }
-        ]
+        "type" => "goto-point",
+        "name" => "my-goto-point"
       },
       %{
         "type" => "stage",
-        "name" => "add-one",
+        "name" => "add_one",
         "service" => %{
           "name" => "simple-math",
           "function" => "add_one"
         },
-        "download" => %{
-          "x" => "args['sum']"
-        },
         "upload" => %{
           "x" => "args['result']"
         }
+      },
+      %{
+        "type" => "goto",
+        "name" => "my-goto",
+        "to" => "my-goto-point",
+        "condition" => "args['x'] <= 3"
       }
     ]
 
     @pipeline %{
-      "name" => "ClonePipeline",
+      "name" => "GotoPipeline",
       "components" => @components
     }
 
     test "define and call pipeline" do
       Pipeline.define(@pipeline)
-      Kraken.Pipelines.ClonePipeline.start()
+      Kraken.Pipelines.GotoPipeline.start()
 
-      assert capture_log(fn ->
-               assert %{"x" => 4} = Kraken.Pipelines.ClonePipeline.call(%{"a" => 1, "b" => 2})
-             end) =~ "{\"sum\", 3}"
+      Kraken.Pipelines.GotoPipeline.MyGoto.call(%{"x" => 2}, %{})
+
+      assert %{"x" => 4} = Kraken.Pipelines.GotoPipeline.call(%{"x" => 1})
     end
   end
 end

@@ -1,6 +1,6 @@
 defmodule Kraken.Define.Pipeline do
   alias Kraken.{Configs, Utils}
-  alias Kraken.Define.{Clone, DeadEnd, Stage, Switch}
+  alias Kraken.Define.{Goto, Stage, Switch}
   alias ALF.Components
 
   def define(definition) do
@@ -50,7 +50,7 @@ defmodule Kraken.Define.Pipeline do
             {:ok, stage_module} = Stage.define(definition, pipeline_module)
 
             %Components.Stage{
-              name: String.to_atom(definition["name"]),
+              name: definition["name"],
               module: :"Elixir.#{stage_module}",
               function: :call,
               opts: definition["opts"]
@@ -67,7 +67,7 @@ defmodule Kraken.Define.Pipeline do
               end)
 
             %Components.Switch{
-              name: String.to_atom(definition["name"]),
+              name: definition["name"],
               module: :"Elixir.#{switch_module}",
               function: :call,
               opts: definition["opts"],
@@ -78,13 +78,28 @@ defmodule Kraken.Define.Pipeline do
             Map.get(definition, "to") || raise "Missing 'to'"
 
             %Components.Clone{
-              name: String.to_atom(definition["name"]),
+              name: definition["name"],
               to: build_components(definition["to"], pipeline_module)
             }
 
           "dead_end" ->
             %Components.DeadEnd{
-              name: String.to_atom(definition["name"])
+              name: definition["name"]
+            }
+
+          "goto_point" ->
+            %Components.GotoPoint{
+              name: definition["name"]
+            }
+
+          "goto" ->
+            {:ok, goto_module} = Goto.define(definition, pipeline_module)
+
+            %Components.Goto{
+              name: definition["name"],
+              module: :"Elixir.#{goto_module}",
+              function: :call,
+              to: (Map.get(definition, "to") || raise "Missing 'to'")
             }
         end
 
