@@ -4,6 +4,8 @@ defmodule Kraken.Define.PipelineTest do
   alias Kraken.Test.Definitions
   alias Kraken.Define.Pipeline
 
+  import ExUnit.CaptureLog
+
   def define_and_start_service(name) do
     {:ok, ^name} =
       "services/#{name}.json"
@@ -60,6 +62,14 @@ defmodule Kraken.Define.PipelineTest do
       "upload" => %{
         "z" => "args['result']"
       }
+    },
+    %{
+      "type" => "stage",
+      "name" => "log",
+      "service" => %{
+        "name" => "simple-math",
+        "function" => "log"
+      }
     }
   ]
 
@@ -71,6 +81,9 @@ defmodule Kraken.Define.PipelineTest do
   test "define and call pipeline" do
     Pipeline.define(@pipeline)
     Kraken.Pipelines.MyPipeline.start()
-    assert %{"z" => 6} = Kraken.Pipelines.MyPipeline.call(%{"x" => 1, "y" => 2})
+
+    assert capture_log(fn ->
+             assert %{"z" => 6} = Kraken.Pipelines.MyPipeline.call(%{"x" => 1, "y" => 2})
+           end) =~ "{\"z\", 6}"
   end
 end

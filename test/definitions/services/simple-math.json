@@ -5,6 +5,8 @@
     "start": {
       "code": [
         "defmodule SimpleMath do",
+          "require Logger",
+
           "def add(%{\"a\" => a, \"b\" => b}) do",
             "%{\"sum\" => a + b}",
           "end",
@@ -15,6 +17,11 @@
 
           "def add_one(%{\"x\" => x}) do",
             "%{\"result\" => x + 1}",
+          "end",
+
+          "def log(event) do",
+            "Logger.info(event)",
+            "event",
           "end",
         "end"
       ]
@@ -56,6 +63,12 @@
       },
       "output": {
         "result": {"type": "number"}
+      }
+    },
+    "log": {
+      "call": {
+        "module": "SimpleMath",
+        "function": "log"
       }
     }
   }

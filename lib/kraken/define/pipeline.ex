@@ -1,6 +1,6 @@
 defmodule Kraken.Define.Pipeline do
   alias Kraken.{Configs, Utils}
-  alias Kraken.Define.{Stage, Switch}
+  alias Kraken.Define.{Clone, DeadEnd, Stage, Switch}
   alias ALF.Components
 
   def define(definition) do
@@ -34,15 +34,22 @@ defmodule Kraken.Define.Pipeline do
     """
   end
 
+  # TODO think about default names based on the specification
   defp build_components(components, pipeline_module) do
     components
     |> Enum.reduce([], fn definition, acc ->
+      Map.get(definition, "type") || raise "Missing type"
+      type =
+        definition["type"]
+        |> String.downcase()
+        |> String.replace("-", "_")
+
       component =
-        case definition["type"] do
+        case type do
           "stage" ->
             {:ok, stage_module} = Stage.define(definition, pipeline_module)
 
-            component = %Components.Stage{
+            %Components.Stage{
               name: String.to_atom(definition["name"]),
               module: :"Elixir.#{stage_module}",
               function: :call,
@@ -59,12 +66,25 @@ defmodule Kraken.Define.Pipeline do
                 Map.put(branch_pipes, key, inner_components)
               end)
 
-            component = %Components.Switch{
+            %Components.Switch{
               name: String.to_atom(definition["name"]),
               module: :"Elixir.#{switch_module}",
               function: :call,
               opts: definition["opts"],
               branches: branches
+            }
+
+          "clone" ->
+            Map.get(definition, "to") || raise "Missing 'to'"
+
+            %Components.Clone{
+              name: String.to_atom(definition["name"]),
+              to: build_components(definition["to"], pipeline_module)
+            }
+
+          "dead_end" ->
+            %Components.DeadEnd{
+              name: String.to_atom(definition["name"])
             }
         end
 
