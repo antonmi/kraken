@@ -21,7 +21,7 @@ defmodule Kraken.MixProject do
   defp deps do
     [
       {:alf, "~> 0.8"},
-      {:octopus, path: "/Users/anton.mishchukkloeckner.com/elixir/octopus/apps/octopus"}
+      {:octopus, "~> 0.4.1"}
     ]
   end
 end
