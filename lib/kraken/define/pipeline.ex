@@ -52,8 +52,7 @@ defmodule Kraken.Define.Pipeline do
             %Components.Stage{
               name: definition["name"],
               module: :"Elixir.#{stage_module}",
-              function: :call,
-              opts: definition["opts"]
+              function: :call
             }
 
           "switch" ->
@@ -70,7 +69,6 @@ defmodule Kraken.Define.Pipeline do
               name: definition["name"],
               module: :"Elixir.#{switch_module}",
               function: :call,
-              opts: definition["opts"],
               branches: branches
             }
 

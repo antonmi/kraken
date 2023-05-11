@@ -34,10 +34,7 @@ defmodule Kraken.Define.StageTest do
       "name" => "simple-math",
       "function" => "add"
     },
-    # TODO it seems that the only way to use it is in "download" and "upload".
-    "opts" => %{},
     "download" => %{
-      # TODO what if opts can be accessed here?
       "a" => "args['x']",
       "b" => "args['y']"
     },
@@ -59,5 +56,9 @@ defmodule Kraken.Define.StageTest do
     assert_raise RuntimeError, fn ->
       apply(stage_module, :call, [%{"x" => "error"}, %{}])
     end
+  end
+  
+  describe "opts in stage" do
+    
   end
 end

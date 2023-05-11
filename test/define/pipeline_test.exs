@@ -37,10 +37,7 @@ defmodule Kraken.Define.PipelineTest do
         "name" => "simple-math",
         "function" => "add"
       },
-      # TODO it seems that the only way to use it is in "download" and "upload".
-      "opts" => %{},
       "download" => %{
-        # TODO what if opts can be accessed here?
         "a" => "args['x']",
         "b" => "args['y']"
       },
@@ -55,7 +52,6 @@ defmodule Kraken.Define.PipelineTest do
         "name" => "simple-math",
         "function" => "mult_by_two"
       },
-      "opts" => %{},
       "download" => %{
         "x" => "args['z']"
       },

@@ -12,8 +12,6 @@ defmodule Kraken.Define.SwitchTest do
       "branch1" => [],
       "branch2" => []
     },
-    # TODO it seems that the only way to use it is in "download" and "upload".
-    "opts" => %{},
     "condition" => "if args['number'] <= 3, do: \"branch1\", else: \"branch2\""
   }
 
