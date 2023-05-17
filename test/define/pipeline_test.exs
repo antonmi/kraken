@@ -76,10 +76,11 @@ defmodule Kraken.Define.PipelineTest do
 
   test "define and call pipeline" do
     Pipeline.define(@pipeline)
-    Kraken.Pipelines.MyPipeline.start()
+    apply(Kraken.Pipelines.MyPipeline, :start, [])
 
     assert capture_log(fn ->
-             assert %{"z" => 6} = Kraken.Pipelines.MyPipeline.call(%{"x" => 1, "y" => 2})
+             result = apply(Kraken.Pipelines.MyPipeline, :call, [%{"x" => 1, "y" => 2}])
+             assert result == %{"x" => 1, "y" => 2, "z" => 6}
            end) =~ "{\"z\", 6}"
   end
 end

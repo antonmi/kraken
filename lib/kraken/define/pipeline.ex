@@ -1,6 +1,6 @@
 defmodule Kraken.Define.Pipeline do
   alias Kraken.{Configs, Utils}
-  alias Kraken.Define.{Goto, Stage, Switch}
+  alias Kraken.Define.{Decomposer, Goto, Recomposer, Stage, Switch}
   alias ALF.Components
 
   def define(definition) do
@@ -35,10 +35,13 @@ defmodule Kraken.Define.Pipeline do
   end
 
   # TODO think about default names based on the specification
+  # "type - serialized json definition"
+  # TODO definition should go to the component code.
   defp build_components(components, pipeline_module) do
     components
     |> Enum.reduce([], fn definition, acc ->
       Map.get(definition, "type") || raise "Missing type"
+
       type =
         definition["type"]
         |> String.downcase()
@@ -97,8 +100,32 @@ defmodule Kraken.Define.Pipeline do
               name: definition["name"],
               module: :"Elixir.#{goto_module}",
               function: :call,
-              to: (Map.get(definition, "to") || raise "Missing 'to'")
+              to: Map.get(definition, "to") || raise("Missing 'to'")
             }
+
+          "decomposer" ->
+            {:ok, decomposer_module} = Decomposer.define(definition, pipeline_module)
+
+            %Components.Decomposer{
+              name: definition["name"],
+              module: :"Elixir.#{decomposer_module}",
+              function: :call
+            }
+
+          "recomposer" ->
+            {:ok, recomposer_module} = Recomposer.define(definition, pipeline_module)
+
+            %Components.Recomposer{
+              name: definition["name"],
+              module: :"Elixir.#{recomposer_module}",
+              function: :call
+            }
+
+          nil ->
+            raise "Component 'type' must be given"
+
+          unknown_type ->
+            raise "Unknown component type #{unknown_type}"
         end
 
       acc ++ [component]

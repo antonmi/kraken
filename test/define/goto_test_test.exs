@@ -2,7 +2,6 @@ defmodule Kraken.Define.GotoTest do
   use ExUnit.Case
 
   alias Kraken.Test.Definitions
-  alias Kraken.Define.Clone
   alias Kraken.Define.Pipeline
 
   describe "simple pipeline with goto" do
@@ -61,11 +60,10 @@ defmodule Kraken.Define.GotoTest do
 
     test "define and call pipeline" do
       Pipeline.define(@pipeline)
-      Kraken.Pipelines.GotoPipeline.start()
+      apply(Kraken.Pipelines.GotoPipeline, :start, [])
 
-      Kraken.Pipelines.GotoPipeline.MyGoto.call(%{"x" => 2}, %{})
-
-      assert %{"x" => 4} = Kraken.Pipelines.GotoPipeline.call(%{"x" => 1})
+      assert apply(Kraken.Pipelines.GotoPipeline.MyGoto, :call, [%{"x" => 2}, %{}]) == true
+      assert apply(Kraken.Pipelines.GotoPipeline, :call, [%{"x" => 1}]) == %{"x" => 4}
     end
   end
 end

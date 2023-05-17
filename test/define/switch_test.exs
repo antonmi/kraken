@@ -8,6 +8,9 @@ defmodule Kraken.Define.SwitchTest do
   @switch %{
     "type" => "switch",
     "name" => "my-switch",
+    "download" => %{
+      "number" => "args['x']"
+    },
     "branches" => %{
       "branch1" => [],
       "branch2" => []
@@ -19,8 +22,8 @@ defmodule Kraken.Define.SwitchTest do
     {:ok, switch_module} = Switch.define(@switch, Kraken.Pipelines.SwitchPipeline)
     assert switch_module == Kraken.Pipelines.SwitchPipeline.MySwitch
 
-    assert "branch1" = apply(switch_module, :call, [%{"number" => 2}, %{}])
-    assert "branch2" = apply(switch_module, :call, [%{"number" => 4}, %{}])
+    assert "branch1" = apply(switch_module, :call, [%{"x" => 2}, %{}])
+    assert "branch2" = apply(switch_module, :call, [%{"x" => 4}, %{}])
 
     assert_raise RuntimeError, "Event must be a map", fn ->
       apply(switch_module, :call, ["error", %{}])
@@ -59,11 +62,17 @@ defmodule Kraken.Define.SwitchTest do
         "service" => %{
           "name" => "simple-math",
           "function" => "add"
+        },
+        "upload" => %{
+          "sum" => "args['sum']"
         }
       },
       %{
         "type" => "switch",
         "name" => "my-switch",
+        "download" => %{
+          "number" => "args['sum']"
+        },
         "branches" => %{
           "branch1" => [
             %{
@@ -98,7 +107,7 @@ defmodule Kraken.Define.SwitchTest do
             }
           ]
         },
-        "condition" => "if args['sum'] <= 3, do: \"branch1\", else: \"branch2\""
+        "condition" => "if args['number'] <= 3, do: \"branch1\", else: \"branch2\""
       }
     ]
 
@@ -109,9 +118,13 @@ defmodule Kraken.Define.SwitchTest do
 
     test "define and call pipeline" do
       Pipeline.define(@pipeline)
-      Kraken.Pipelines.SwitchPipeline.start()
-      assert %{"x" => 6} = Kraken.Pipelines.SwitchPipeline.call(%{"a" => 1, "b" => 2})
-      assert %{"x" => 5} = Kraken.Pipelines.SwitchPipeline.call(%{"a" => 2, "b" => 2})
+      apply(Kraken.Pipelines.SwitchPipeline, :start, [])
+
+      result = apply(Kraken.Pipelines.SwitchPipeline, :call, [%{"a" => 1, "b" => 2}])
+      assert result == %{"a" => 1, "b" => 2, "sum" => 3, "x" => 6}
+
+      result = apply(Kraken.Pipelines.SwitchPipeline, :call, [%{"a" => 2, "b" => 2}])
+      assert result == %{"a" => 2, "b" => 2, "sum" => 4, "x" => 5}
     end
   end
 end

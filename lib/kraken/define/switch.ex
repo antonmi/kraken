@@ -7,11 +7,13 @@ defmodule Kraken.Define.Switch do
       |> Utils.modulize()
       |> String.to_atom()
 
+    download = Map.get(definition, "download", false)
     branches = Map.get(definition, "branches") || raise "Missing branches"
     condition = Map.get(definition, "condition") || raise "Missing condition"
 
     template()
     |> EEx.eval_string(
+      download: download,
       switch_module: switch_module,
       condition: condition,
       # TODO helper_modules(definition.helpers)
@@ -31,6 +33,10 @@ defmodule Kraken.Define.Switch do
                    |> Base.decode64!()
                    |> :erlang.binary_to_term()
 
+        @download "<%= Base.encode64(:erlang.term_to_binary(download)) %>"
+                   |> Base.decode64!()
+                   |> :erlang.binary_to_term()
+
         @helpers "<%= Base.encode64(:erlang.term_to_binary(helpers)) %>"
                  |> Base.decode64!()
                  |> :erlang.binary_to_term()
@@ -38,6 +44,7 @@ defmodule Kraken.Define.Switch do
         def call(event, _opts) when is_map(event) do
           %Kraken.Define.Switch.Call{
             event: event,
+            download: @download,
             condition: @condition,
             helpers: @helpers
           }
@@ -55,21 +62,25 @@ defmodule Kraken.Define.Switch do
     @moduledoc false
 
     defstruct event: nil,
+              download: false,
               condition: "",
               helpers: []
+
+    alias Octopus.Transform
 
     @spec call(%__MODULE__{}) :: {:ok, map()} | {:error, any()}
     def call(%__MODULE__{
           event: event,
+          download: download,
           condition: condition,
           helpers: helpers
         }) do
-      case Utils.eval_string(condition, args: event, helpers: helpers) do
-        {:ok, branch} ->
-          branch
-
+      with {:ok, args} <- Transform.transform(event, download, helpers),
+           {:ok, branch} <- Utils.eval_string(condition, args: args, helpers: helpers) do
+        branch
+      else
         {:error, error} ->
-          raise error
+          {:error, error}
       end
     end
   end

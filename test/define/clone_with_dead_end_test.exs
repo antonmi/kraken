@@ -2,7 +2,6 @@ defmodule Kraken.Define.CloneWithDeadEndTest do
   use ExUnit.Case
 
   alias Kraken.Test.Definitions
-  alias Kraken.Define.Clone
   alias Kraken.Define.Pipeline
 
   import ExUnit.CaptureLog
@@ -39,6 +38,9 @@ defmodule Kraken.Define.CloneWithDeadEndTest do
         "service" => %{
           "name" => "simple-math",
           "function" => "add"
+        },
+        "upload" => %{
+          "sum" => "args['sum']"
         }
       },
       %{
@@ -82,10 +84,11 @@ defmodule Kraken.Define.CloneWithDeadEndTest do
 
     test "define and call pipeline" do
       Pipeline.define(@pipeline)
-      Kraken.Pipelines.ClonePipeline.start()
+      apply(Kraken.Pipelines.ClonePipeline, :start, [])
 
       assert capture_log(fn ->
-               assert %{"x" => 4} = Kraken.Pipelines.ClonePipeline.call(%{"a" => 1, "b" => 2})
+               result = apply(Kraken.Pipelines.ClonePipeline, :call, [%{"a" => 1, "b" => 2}])
+               assert result == %{"a" => 1, "b" => 2, "x" => 4, "sum" => 3}
              end) =~ "{\"sum\", 3}"
     end
   end
