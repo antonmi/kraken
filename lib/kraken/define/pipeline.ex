@@ -6,7 +6,15 @@ defmodule Kraken.Define.Pipeline do
   def define(definition) do
     name = definition["name"] || raise "Provide pipeline name"
     pipeline_module = :"#{namespace()}.#{Utils.modulize(name)}"
-    components = build_components(definition["components"], pipeline_module)
+
+    helpers =
+      definition
+      |> Map.get("helpers", [])
+      |> Enum.map(&:"Elixir.#{&1}")
+
+    components = build_components(definition["components"], pipeline_module, helpers)
+
+
 
     template()
     |> EEx.eval_string(
@@ -37,7 +45,7 @@ defmodule Kraken.Define.Pipeline do
   # TODO think about default names based on the specification
   # "type - serialized json definition"
   # TODO definition should go to the component code.
-  defp build_components(components, pipeline_module) do
+  defp build_components(components, pipeline_module, helpers) do
     components
     |> Enum.reduce([], fn definition, acc ->
       Map.get(definition, "type") || raise "Missing type"
@@ -50,7 +58,7 @@ defmodule Kraken.Define.Pipeline do
       component =
         case type do
           "stage" ->
-            {:ok, stage_module} = Stage.define(definition, pipeline_module)
+            {:ok, stage_module} = Stage.define(definition, pipeline_module, helpers)
 
             %Components.Stage{
               name: definition["name"],
@@ -63,7 +71,7 @@ defmodule Kraken.Define.Pipeline do
 
             branches =
               Enum.reduce(definition["branches"], %{}, fn {key, inner_pipe_spec}, branch_pipes ->
-                inner_components = build_components(inner_pipe_spec, pipeline_module)
+                inner_components = build_components(inner_pipe_spec, pipeline_module, helpers)
 
                 Map.put(branch_pipes, key, inner_components)
               end)
@@ -80,7 +88,7 @@ defmodule Kraken.Define.Pipeline do
 
             %Components.Clone{
               name: definition["name"],
-              to: build_components(definition["to"], pipeline_module)
+              to: build_components(definition["to"], pipeline_module, helpers)
             }
 
           "dead_end" ->

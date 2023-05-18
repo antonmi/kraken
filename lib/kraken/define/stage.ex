@@ -1,7 +1,7 @@
 defmodule Kraken.Define.Stage do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module) do
+  def define(definition, pipeline_module, pipeline_helpers \\ []) do
     stage_module =
       "#{pipeline_module}.#{definition["name"]}"
       |> Utils.modulize()
@@ -9,6 +9,12 @@ defmodule Kraken.Define.Stage do
 
     download = Map.get(definition, "download", false)
     upload = Map.get(definition, "upload", false)
+
+    helpers =
+      definition
+      |> Map.get("helpers", [])
+      |> Enum.map(&:"Elixir.#{&1}")
+      |> Kernel.++(pipeline_helpers)
 
     {service_name, service_function} =
       if Map.get(definition, "service") do
@@ -29,8 +35,7 @@ defmodule Kraken.Define.Stage do
       service_function: service_function,
       download: download,
       upload: upload,
-      # TODO helper_modules(definition.helpers)
-      helpers: []
+      helpers: helpers
     )
     |> Utils.eval_code()
     |> case do
@@ -119,7 +124,7 @@ defmodule Kraken.Define.Stage do
       Octopus.call(service_name, service_function, args)
     end
 
-    defp upload_to_event(event, args, false), do: event
+    defp upload_to_event(event, _args, false), do: event
 
     defp upload_to_event(event, args, upload) when is_map(upload) do
       Map.merge(event, args)

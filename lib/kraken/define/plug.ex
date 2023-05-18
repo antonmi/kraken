@@ -55,6 +55,8 @@ defmodule Kraken.Define.Plug do
           end
         end
 
+        def plug(_event, _opts), do: raise "Event must be a map"
+
         def unplug(event, prev_event, _) when is_map(event) and is_map(prev_event) do
           %Kraken.Define.Plug.Call{
             event: event,
@@ -71,13 +73,7 @@ defmodule Kraken.Define.Plug do
           end
         end
 
-        def plug(_event, _opts) do
-          raise "Event must be a map"
-        end
-
-        def unplug(_event, _prev_event, _opts) do
-          raise "Event must be a map"
-        end
+        def unplug(_event, _prev_event, _opts), do: raise "Event must be a map"
       end
     """
   end
@@ -125,7 +121,7 @@ defmodule Kraken.Define.Plug do
       end
     end
 
-    defp upload_to_event(event, args, false), do: event
+    defp upload_to_event(event, _args, false), do: event
 
     defp upload_to_event(event, args, upload) when is_map(upload) do
       Map.merge(event, args)

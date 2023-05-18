@@ -2,7 +2,7 @@ defmodule Kraken.Define.StageTest do
   use ExUnit.Case
 
   alias Kraken.Test.Definitions
-  alias Kraken.Define.Stage
+  alias Kraken.Define.{Pipeline, Stage}
 
   def define_and_start_service(name) do
     {:ok, ^name} =
@@ -139,6 +139,41 @@ defmodule Kraken.Define.StageTest do
 
       result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
       assert result == %{"x" => 1, "y" => 2}
+    end
+  end
+
+  describe "helpers in stage" do
+    @component_with_helpers %{
+      "type" => "stage",
+      "name" => "add-with-helpers",
+      "service" => %{"name" => "simple-math", "function" => "add"},
+      "download" => %{"a" => "fetch(args, 'x')", "b" => "fetch(args, 'y')"},
+      "upload" => %{"z" => "fetch(args, 'sum')"},
+      "helpers" => ["Helpers.FetchHelper"]
+    }
+
+    test "define and call stage" do
+      {:ok, stage_module} = Stage.define(@component_with_helpers, Kraken.Pipelines.MyPipeline)
+      assert stage_module == Kraken.Pipelines.MyPipeline.AddWithHelpers
+
+      result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
+      assert result == %{"x" => 1, "y" => 2, "z" => 3}
+    end
+
+    @pipeline_with_helpers %{
+      "name" => "PipelineWithHelpers",
+      "components" => [
+        Map.put(@component_with_helpers, "upload", %{"z" => "get(args, 'sum')"})
+      ],
+      "helpers" => ["Helpers.GetHelper"]
+    }
+
+    test "pipeline helpers are added to the component ones" do
+      Pipeline.define(@pipeline_with_helpers)
+      apply(Kraken.Pipelines.PipelineWithHelpers, :start, [])
+
+      result = apply(Kraken.Pipelines.PipelineWithHelpers, :call, [%{"x" => 1, "y" => 2}])
+      assert result == %{"x" => 1, "y" => 2, "z" => 3}
     end
   end
 end
