@@ -1,11 +1,11 @@
 defmodule Kraken.Define.Pipeline do
   alias Kraken.{Configs, Utils}
-  alias Kraken.Define.{Decomposer, Goto, Recomposer, Stage, Switch}
+  alias Kraken.Define.{Decomposer, Goto, Recomposer, Plug, Stage, Switch}
   alias ALF.Components
 
   def define(definition) do
     name = definition["name"] || raise "Provide pipeline name"
-    pipeline_module = :"#{namespace}.#{Utils.modulize(name)}"
+    pipeline_module = :"#{namespace()}.#{Utils.modulize(name)}"
     components = build_components(definition["components"], pipeline_module)
 
     template()
@@ -121,6 +121,23 @@ defmodule Kraken.Define.Pipeline do
               function: :call
             }
 
+          "plug" ->
+            {:ok, plug_module} = Plug.define(definition, pipeline_module)
+
+            pipeline_name =
+              Map.get(definition, "pipeline") || raise "\"pipeline\" must be provided"
+
+            pipeline_module = :"Elixir.#{namespace()}.#{Utils.modulize(pipeline_name)}"
+
+            plug = %Components.Plug{name: definition["name"], module: :"Elixir.#{plug_module}"}
+
+            unplug = %Components.Unplug{
+              name: definition["name"],
+              module: :"Elixir.#{plug_module}"
+            }
+
+            [plug] ++ pipeline_module.alf_components() ++ [unplug]
+
           nil ->
             raise "Component 'type' must be given"
 
@@ -128,7 +145,13 @@ defmodule Kraken.Define.Pipeline do
             raise "Unknown component type #{unknown_type}"
         end
 
-      acc ++ [component]
+      case component do
+        component when is_map(component) ->
+          acc ++ [component]
+
+        components when is_list(components) ->
+          acc ++ components
+      end
     end)
   end
 
