@@ -178,4 +178,68 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
       assert result == %{"string" => "aaa bbb ! ccc"}
     end
   end
+
+  describe "with helpers both in pipeline and in de-recomposer" do
+    @pipeline_with_de_and_recomposer_and_helpers %{
+      "name" => "PipelineWithDeAndRecomposerAndHelpers",
+      "helpers" => ["Helpers.GetHelper"],
+      "components" => [
+        %{
+          "type" => "decomposer",
+          "name" => "decomposer",
+          "download" => %{
+            "string" => "fetch(args, 'input')"
+          },
+          "service" => %{
+            "name" => "decompose-recompose",
+            "function" => "decompose"
+          },
+          "decompose" => %{
+            "events" => "args['new-events']",
+            "event" => "get(args, 'current-event')"
+          },
+          "helpers" => ["Helpers.FetchHelper"]
+        },
+        %{
+          "type" => "stage",
+          "name" => "convert-string-back-to-input",
+          "upload" => %{
+            "input" => "args['string']"
+          }
+        },
+        %{
+          "type" => "recomposer",
+          "name" => "recomposer",
+          "download" => %{
+            "string" => "fetch(args, 'input')"
+          },
+          "service" => %{
+            "name" => "decompose-recompose",
+            "function" => "recompose"
+          },
+          "recompose" => %{
+            "event" => "get(args, 'event')",
+            "events" => "args['stored']"
+          },
+          "helpers" => ["Helpers.FetchHelper"]
+        }
+      ]
+    }
+
+    test "define and call PipelineWithDeAndRecomposer" do
+      Pipeline.define(@pipeline_with_de_and_recomposer_and_helpers)
+      apply(Kraken.Pipelines.PipelineWithDeAndRecomposerAndHelpers, :start, [])
+
+      assert is_nil(
+               apply(Kraken.Pipelines.PipelineWithDeAndRecomposerAndHelpers, :call, [
+                 %{"input" => "aaa bbb"}
+               ])
+             )
+
+      result =
+        apply(Kraken.Pipelines.PipelineWithDeAndRecomposerAndHelpers, :call, [%{"input" => "ccc"}])
+
+      assert result == %{"string" => "aaa bbb ! ccc"}
+    end
+  end
 end

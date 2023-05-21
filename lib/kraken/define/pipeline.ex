@@ -7,14 +7,9 @@ defmodule Kraken.Define.Pipeline do
     name = definition["name"] || raise "Provide pipeline name"
     pipeline_module = :"#{namespace()}.#{Utils.modulize(name)}"
 
-    helpers =
-      definition
-      |> Map.get("helpers", [])
-      |> Enum.map(&:"Elixir.#{&1}")
+    helpers = Utils.helper_modules(definition)
 
     components = build_components(definition["components"], pipeline_module, helpers)
-
-
 
     template()
     |> EEx.eval_string(
@@ -112,7 +107,7 @@ defmodule Kraken.Define.Pipeline do
             }
 
           "decomposer" ->
-            {:ok, decomposer_module} = Decomposer.define(definition, pipeline_module)
+            {:ok, decomposer_module} = Decomposer.define(definition, pipeline_module, helpers)
 
             %Components.Decomposer{
               name: definition["name"],
@@ -121,7 +116,7 @@ defmodule Kraken.Define.Pipeline do
             }
 
           "recomposer" ->
-            {:ok, recomposer_module} = Recomposer.define(definition, pipeline_module)
+            {:ok, recomposer_module} = Recomposer.define(definition, pipeline_module, helpers)
 
             %Components.Recomposer{
               name: definition["name"],

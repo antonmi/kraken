@@ -1,7 +1,7 @@
 defmodule Kraken.Define.Decomposer do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module) do
+  def define(definition, pipeline_module, pipeline_helpers \\ []) do
     decomposer_module =
       "#{pipeline_module}.#{definition["name"]}"
       |> Utils.modulize()
@@ -18,6 +18,8 @@ defmodule Kraken.Define.Decomposer do
 
     decompose = Map.get(definition, "decompose")
 
+    helpers = Utils.helper_modules(definition) ++ pipeline_helpers
+
     template()
     |> EEx.eval_string(
       decomposer_module: decomposer_module,
@@ -25,8 +27,7 @@ defmodule Kraken.Define.Decomposer do
       service_function: service_function,
       download: download,
       decompose: decompose,
-      # TODO helper_modules(definition.helpers)
-      helpers: []
+      helpers: helpers
     )
     |> Utils.eval_code()
     |> case do

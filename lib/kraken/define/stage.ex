@@ -10,11 +10,7 @@ defmodule Kraken.Define.Stage do
     download = Map.get(definition, "download", false)
     upload = Map.get(definition, "upload", false)
 
-    helpers =
-      definition
-      |> Map.get("helpers", [])
-      |> Enum.map(&:"Elixir.#{&1}")
-      |> Kernel.++(pipeline_helpers)
+    helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 
     {service_name, service_function} =
       if Map.get(definition, "service") do
