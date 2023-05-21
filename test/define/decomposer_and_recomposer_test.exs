@@ -1,18 +1,8 @@
 defmodule Kraken.Define.DecomposerAndRecomposerTest do
   use ExUnit.Case
-
-  alias Kraken.Test.Definitions
+  import Kraken.TestHelpers
   alias Kraken.Define.{Decomposer, Recomposer}
   alias Kraken.Define.Pipeline
-
-  def define_and_start_service(name) do
-    {:ok, ^name} =
-      "services/#{name}.json"
-      |> Definitions.read_and_decode()
-      |> Octopus.define()
-
-    {:ok, _code} = Octopus.start(name)
-  end
 
   setup do
     define_and_start_service("decompose-recompose")

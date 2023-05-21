@@ -1,17 +1,7 @@
 defmodule Kraken.Define.StageTest do
   use ExUnit.Case
-
-  alias Kraken.Test.Definitions
+  import Kraken.TestHelpers
   alias Kraken.Define.{Pipeline, Stage}
-
-  def define_and_start_service(name) do
-    {:ok, ^name} =
-      "services/#{name}.json"
-      |> Definitions.read_and_decode()
-      |> Octopus.define()
-
-    {:ok, _code} = Octopus.start(name)
-  end
 
   setup do
     define_and_start_service("simple-math")
