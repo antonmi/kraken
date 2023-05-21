@@ -32,7 +32,7 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
   test "decompose-recompose service, recompose function" do
     args = %{
       "event" => %{"string" => "!"},
-      "stored" => [%{"string" => "Hello"}]
+      "events" => [%{"string" => "Hello"}]
     }
 
     {:ok, result} = Octopus.call("decompose-recompose", "recompose", args)
@@ -40,7 +40,7 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
 
     args = %{
       "event" => %{"string" => "!!!"},
-      "stored" => [%{"string" => "Hello"}, %{"string" => "World"}]
+      "events" => [%{"string" => "Hello"}, %{"string" => "World"}]
     }
 
     {:ok, result} = Octopus.call("decompose-recompose", "recompose", args)

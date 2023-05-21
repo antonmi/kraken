@@ -50,10 +50,10 @@ defmodule Kraken.Define.Recomposer do
                  |> Base.decode64!()
                  |> :erlang.binary_to_term()
 
-        def call(event, stored, _opts) when is_map(event) and is_list(stored) do
+        def call(event, events, _opts) when is_map(event) and is_list(events) do
           %Kraken.Define.Recomposer.Call{
             event: event,
-            stored: stored,
+            events: events,
             service_name: "<%= service_name %>",
             service_function: "<%= service_function %>",
             download: @download,
@@ -63,8 +63,8 @@ defmodule Kraken.Define.Recomposer do
           |> Kraken.Define.Recomposer.Call.call()
         end
 
-        def call(_event, _stored, _opts) do
-          raise "Event must be a map and 'stored' must be a list"
+        def call(_event, _events, _opts) do
+          raise "'event' must be a map and 'events' must be a list"
         end
       end
     """
@@ -74,7 +74,7 @@ defmodule Kraken.Define.Recomposer do
     @moduledoc false
 
     defstruct event: nil,
-              stored: [],
+              events: [],
               service_name: nil,
               service_function: nil,
               download: false,
@@ -86,7 +86,7 @@ defmodule Kraken.Define.Recomposer do
     @spec call(%__MODULE__{}) :: {:ok, map()} | {:error, any()}
     def call(%__MODULE__{
           event: event,
-          stored: stored,
+          events: events,
           service_name: service_name,
           service_function: service_function,
           download: download,
@@ -96,7 +96,7 @@ defmodule Kraken.Define.Recomposer do
       with {:ok, args} <-
              Transform.transform(event, download, helpers),
            {:ok, args} <-
-             Octopus.call(service_name, service_function, %{"event" => args, "stored" => stored}),
+             Octopus.call(service_name, service_function, %{"event" => args, "events" => events}),
            {:ok, args} <-
              Transform.transform(args, recompose, helpers) do
         event = Map.get(args, "event", nil)

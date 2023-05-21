@@ -15,7 +15,7 @@
           "end",
 
           "defmodule Recomposer do",
-            "def call(%{\"event\" => event, \"stored\" => prev_events}) do",
+            "def call(%{\"event\" => event, \"events\" => prev_events}) do",
               "string = event[\"string\"]",
               "prev_strings = Enum.map(prev_events, fn(event) -> event[\"string\"] end)",
               "string = Enum.join(prev_strings ++ [string], \" \")",
