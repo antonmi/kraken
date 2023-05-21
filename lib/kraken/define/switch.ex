@@ -1,23 +1,23 @@
 defmodule Kraken.Define.Switch do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module) do
+  def define(definition, pipeline_module, pipeline_helpers \\ []) do
     switch_module =
       "#{pipeline_module}.#{definition["name"]}"
       |> Utils.modulize()
       |> String.to_atom()
 
+    Map.get(definition, "branches") || raise "Missing branches"
     download = Map.get(definition, "download", false)
-    branches = Map.get(definition, "branches") || raise "Missing branches"
     condition = Map.get(definition, "condition") || raise "Missing condition"
+    helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 
     template()
     |> EEx.eval_string(
       download: download,
       switch_module: switch_module,
       condition: condition,
-      # TODO helper_modules(definition.helpers)
-      helpers: []
+      helpers: helpers
     )
     |> Utils.eval_code()
     |> case do

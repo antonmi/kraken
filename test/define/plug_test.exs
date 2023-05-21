@@ -101,4 +101,37 @@ defmodule Kraken.Define.PlugTest do
       assert result == %{"xxx" => 1, "yyy" => 2, "zzz" => 6}
     end
   end
+
+  describe "plug with helpers" do
+    @plug_with_helpers %{
+      "type" => "plug",
+      "name" => "my-plug",
+      "pipeline" => "AddMultPipeline",
+      "download" => %{
+        "x" => "fetch(args, 'xxx')",
+        "y" => "fetch(args, 'yyy')"
+      },
+      "upload" => %{
+        "zzz" => "get(args, 'z')"
+      },
+      "helpers" => ["Helpers.FetchHelper"]
+    }
+
+    @extended_pipeline_with_helpers %{
+      "name" => "ExtendedPipelineWithHelpers",
+      "helpers" => ["Helpers.GetHelper"],
+      "components" => [@plug_with_helpers]
+    }
+
+    test "define and call pipeline" do
+      Pipeline.define(@pipeline)
+      Pipeline.define(@extended_pipeline_with_helpers)
+      apply(Kraken.Pipelines.ExtendedPipelineWithHelpers, :start, [])
+
+      result =
+        apply(Kraken.Pipelines.ExtendedPipelineWithHelpers, :call, [%{"xxx" => 1, "yyy" => 2}])
+
+      assert result == %{"xxx" => 1, "yyy" => 2, "zzz" => 6}
+    end
+  end
 end

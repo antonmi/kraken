@@ -4,6 +4,21 @@ defmodule Kraken.Define.SwitchTest do
   alias Kraken.Define.Switch
   alias Kraken.Define.Pipeline
 
+  setup do
+    define_and_start_service("simple-math")
+
+    on_exit(fn ->
+      Octopus.stop("simple-math")
+      Octopus.delete("simple-math")
+    end)
+  end
+
+  test "simple-math service" do
+    assert {:ok, %{"sum" => 3}} = Octopus.call("simple-math", "add", %{"a" => 1, "b" => 2})
+    assert {:ok, %{"result" => 10}} = Octopus.call("simple-math", "mult_by_two", %{"x" => 5})
+    assert {:ok, %{"result" => 6}} = Octopus.call("simple-math", "add_one", %{"x" => 5})
+  end
+
   @switch %{
     "type" => "switch",
     "name" => "my-switch",
@@ -29,34 +44,51 @@ defmodule Kraken.Define.SwitchTest do
     end
   end
 
+  @add %{
+    "type" => "stage",
+    "name" => "add",
+    "service" => %{
+      "name" => "simple-math",
+      "function" => "add"
+    },
+    "upload" => %{
+      "sum" => "args['sum']"
+    }
+  }
+
+  @mult %{
+    "type" => "stage",
+    "name" => "mult",
+    "service" => %{
+      "name" => "simple-math",
+      "function" => "mult_by_two"
+    },
+    "download" => %{
+      "x" => "args['sum']"
+    },
+    "upload" => %{
+      "x" => "args['result']"
+    }
+  }
+
+  @add_one %{
+    "type" => "stage",
+    "name" => "add-one",
+    "service" => %{
+      "name" => "simple-math",
+      "function" => "add_one"
+    },
+    "download" => %{
+      "x" => "args['sum']"
+    },
+    "upload" => %{
+      "x" => "args['result']"
+    }
+  }
+
   describe "simple pipeline with switch" do
-    setup do
-      define_and_start_service("simple-math")
-
-      on_exit(fn ->
-        Octopus.stop("simple-math")
-        Octopus.delete("simple-math")
-      end)
-    end
-
-    test "simple-math service" do
-      assert {:ok, %{"sum" => 3}} = Octopus.call("simple-math", "add", %{"a" => 1, "b" => 2})
-      assert {:ok, %{"result" => 10}} = Octopus.call("simple-math", "mult_by_two", %{"x" => 5})
-      assert {:ok, %{"result" => 6}} = Octopus.call("simple-math", "add_one", %{"x" => 5})
-    end
-
     @components [
-      %{
-        "type" => "stage",
-        "name" => "add",
-        "service" => %{
-          "name" => "simple-math",
-          "function" => "add"
-        },
-        "upload" => %{
-          "sum" => "args['sum']"
-        }
-      },
+      @add,
       %{
         "type" => "switch",
         "name" => "my-switch",
@@ -64,38 +96,8 @@ defmodule Kraken.Define.SwitchTest do
           "number" => "args['sum']"
         },
         "branches" => %{
-          "branch1" => [
-            %{
-              "type" => "stage",
-              "name" => "mult",
-              "service" => %{
-                "name" => "simple-math",
-                "function" => "mult_by_two"
-              },
-              "download" => %{
-                "x" => "args['sum']"
-              },
-              "upload" => %{
-                "x" => "args['result']"
-              }
-            }
-          ],
-          "branch2" => [
-            %{
-              "type" => "stage",
-              "name" => "add-one",
-              "service" => %{
-                "name" => "simple-math",
-                "function" => "add_one"
-              },
-              "download" => %{
-                "x" => "args['sum']"
-              },
-              "upload" => %{
-                "x" => "args['result']"
-              }
-            }
-          ]
+          "branch1" => [@mult],
+          "branch2" => [@add_one]
         },
         "condition" => "if args['number'] <= 3, do: \"branch1\", else: \"branch2\""
       }
@@ -114,6 +116,42 @@ defmodule Kraken.Define.SwitchTest do
       assert result == %{"a" => 1, "b" => 2, "sum" => 3, "x" => 6}
 
       result = apply(Kraken.Pipelines.SwitchPipeline, :call, [%{"a" => 2, "b" => 2}])
+      assert result == %{"a" => 2, "b" => 2, "sum" => 4, "x" => 5}
+    end
+  end
+
+  describe "simple pipeline with switch and helpers" do
+    @components_with_helpers [
+      @add,
+      %{
+        "type" => "switch",
+        "name" => "my-switch",
+        "helpers" => ["Helpers.FetchHelper"],
+        "download" => %{
+          "number" => "fetch(args, 'sum')"
+        },
+        "branches" => %{
+          "branch1" => [@mult],
+          "branch2" => [@add_one]
+        },
+        "condition" => "if get(args, 'number') <= 3, do: \"branch1\", else: \"branch2\""
+      }
+    ]
+
+    @pipeline_with_helpers %{
+      "name" => "SwitchPipelineWithHelpers",
+      "helpers" => ["Helpers.GetHelper"],
+      "components" => @components_with_helpers
+    }
+
+    test "define and call pipeline" do
+      Pipeline.define(@pipeline_with_helpers)
+      apply(Kraken.Pipelines.SwitchPipelineWithHelpers, :start, [])
+
+      result = apply(Kraken.Pipelines.SwitchPipelineWithHelpers, :call, [%{"a" => 1, "b" => 2}])
+      assert result == %{"a" => 1, "b" => 2, "sum" => 3, "x" => 6}
+
+      result = apply(Kraken.Pipelines.SwitchPipelineWithHelpers, :call, [%{"a" => 2, "b" => 2}])
       assert result == %{"a" => 2, "b" => 2, "sum" => 4, "x" => 5}
     end
   end

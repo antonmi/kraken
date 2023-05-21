@@ -1,7 +1,7 @@
 defmodule Kraken.Define.Plug do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module) do
+  def define(definition, pipeline_module, pipeline_helpers \\ []) do
     plug_module =
       "#{pipeline_module}.#{definition["name"]}"
       |> Utils.modulize()
@@ -9,14 +9,14 @@ defmodule Kraken.Define.Plug do
 
     download = Map.get(definition, "download", false)
     upload = Map.get(definition, "upload", false)
+    helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 
     template()
     |> EEx.eval_string(
       plug_module: plug_module,
       download: download,
       upload: upload,
-      # TODO helper_modules(definition.helpers)
-      helpers: []
+      helpers: helpers
     )
     |> Utils.eval_code()
     |> case do

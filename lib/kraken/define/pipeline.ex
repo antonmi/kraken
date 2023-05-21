@@ -62,7 +62,7 @@ defmodule Kraken.Define.Pipeline do
             }
 
           "switch" ->
-            {:ok, switch_module} = Switch.define(definition, pipeline_module)
+            {:ok, switch_module} = Switch.define(definition, pipeline_module, helpers)
 
             branches =
               Enum.reduce(definition["branches"], %{}, fn {key, inner_pipe_spec}, branch_pipes ->
@@ -97,7 +97,7 @@ defmodule Kraken.Define.Pipeline do
             }
 
           "goto" ->
-            {:ok, goto_module} = Goto.define(definition, pipeline_module)
+            {:ok, goto_module} = Goto.define(definition, pipeline_module, helpers)
 
             %Components.Goto{
               name: definition["name"],
@@ -125,7 +125,7 @@ defmodule Kraken.Define.Pipeline do
             }
 
           "plug" ->
-            {:ok, plug_module} = Plug.define(definition, pipeline_module)
+            {:ok, plug_module} = Plug.define(definition, pipeline_module, helpers)
 
             pipeline_name =
               Map.get(definition, "pipeline") || raise "\"pipeline\" must be provided"
