@@ -13,6 +13,7 @@ defmodule Kraken.Define.Pipeline do
 
     template()
     |> EEx.eval_string(
+      definition: definition,
       pipeline_module: pipeline_module,
       components: components
     )
@@ -28,11 +29,16 @@ defmodule Kraken.Define.Pipeline do
       defmodule <%= pipeline_module %> do
         use ALF.DSL
 
+        @definition "<%= Base.encode64(:erlang.term_to_binary(definition)) %>"
+                    |> Base.decode64!()
+                    |> :erlang.binary_to_term()
+
         @components "<%= Base.encode64(:erlang.term_to_binary(components)) %>"
                     |> Base.decode64!()
                     |> :erlang.binary_to_term()
 
         def test, do: :ok
+        def definition, do: @definition
       end
     """
   end
@@ -63,7 +69,8 @@ defmodule Kraken.Define.Pipeline do
             %Components.Stage{
               name: name,
               module: component_module,
-              function: :call
+              function: :call,
+              source_code: definition
             }
 
           "switch" ->
@@ -80,7 +87,8 @@ defmodule Kraken.Define.Pipeline do
               name: name,
               module: component_module,
               function: :call,
-              branches: branches
+              branches: branches,
+              source_code: definition
             }
 
           "clone" ->
@@ -104,7 +112,8 @@ defmodule Kraken.Define.Pipeline do
               name: name,
               module: component_module,
               function: :call,
-              to: Map.get(definition, "to") || raise("Missing 'to'")
+              to: Map.get(definition, "to") || raise("Missing 'to'"),
+              source_code: definition
             }
 
           "decomposer" ->
@@ -113,7 +122,8 @@ defmodule Kraken.Define.Pipeline do
             %Components.Decomposer{
               name: name,
               module: component_module,
-              function: :call
+              function: :call,
+              source_code: definition
             }
 
           "recomposer" ->
@@ -122,7 +132,8 @@ defmodule Kraken.Define.Pipeline do
             %Components.Recomposer{
               name: name,
               module: component_module,
-              function: :call
+              function: :call,
+              source_code: definition
             }
 
           "plug" ->
@@ -133,8 +144,8 @@ defmodule Kraken.Define.Pipeline do
 
             pipeline_module = :"Elixir.#{namespace()}.#{Utils.modulize(pipeline_name)}"
 
-            plug = %Components.Plug{name: name, module: component_module}
-            unplug = %Components.Unplug{name: name, module: component_module}
+            plug = %Components.Plug{name: name, module: component_module, source_code: definition}
+            unplug = %Components.Unplug{name: name, module: component_module, source_code: definition}
 
             [plug] ++ pipeline_module.alf_components() ++ [unplug]
 

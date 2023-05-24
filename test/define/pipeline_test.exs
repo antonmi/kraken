@@ -69,5 +69,7 @@ defmodule Kraken.Define.PipelineTest do
              result = apply(Kraken.Pipelines.MyPipeline, :call, [%{"x" => 1, "y" => 2}])
              assert result == %{"x" => 1, "y" => 2, "z" => 6}
            end) =~ "{\"z\", 6}"
+
+    assert apply(Kraken.Pipelines.MyPipeline, :definition, []) == @pipeline
   end
 end
