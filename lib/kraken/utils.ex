@@ -15,4 +15,11 @@ defmodule Kraken.Utils do
     |> Map.get("helpers", [])
     |> Enum.map(&:"Elixir.#{&1}")
   end
+
+  def random_string(bytes \\ 5) do
+    bytes
+    |> :crypto.strong_rand_bytes()
+    |> Base.encode32()
+    |> String.downcase()
+  end
 end

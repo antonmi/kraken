@@ -33,8 +33,8 @@ defmodule Kraken.Define.SwitchTest do
   }
 
   test "define and call stage" do
-    {:ok, switch_module} = Switch.define(@switch, Kraken.Pipelines.SwitchPipeline)
-    assert switch_module == Kraken.Pipelines.SwitchPipeline.MySwitch
+    switch_module = Kraken.Pipelines.SwitchPipeline.MySwitch
+    {:ok, ^switch_module} = Switch.define(@switch, switch_module)
 
     assert "branch1" = apply(switch_module, :call, [%{"x" => 2}, %{}])
     assert "branch2" = apply(switch_module, :call, [%{"x" => 4}, %{}])

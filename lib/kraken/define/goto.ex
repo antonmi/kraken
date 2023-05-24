@@ -1,12 +1,7 @@
 defmodule Kraken.Define.Goto do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module, pipeline_helpers \\ []) do
-    goto_module =
-      "#{pipeline_module}.#{definition["name"]}"
-      |> Utils.modulize()
-      |> String.to_atom()
-
+  def define(definition, goto_module, pipeline_helpers \\ []) do
     condition = Map.get(definition, "condition") || raise "Missing condition"
     helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 

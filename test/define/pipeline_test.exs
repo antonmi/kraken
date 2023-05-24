@@ -21,7 +21,6 @@ defmodule Kraken.Define.PipelineTest do
   @components [
     %{
       "type" => "stage",
-      "name" => "add",
       "service" => %{
         "name" => "simple-math",
         "function" => "add"
@@ -36,7 +35,6 @@ defmodule Kraken.Define.PipelineTest do
     },
     %{
       "type" => "stage",
-      "name" => "mult",
       "service" => %{
         "name" => "simple-math",
         "function" => "mult_by_two"

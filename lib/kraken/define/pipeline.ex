@@ -37,8 +37,6 @@ defmodule Kraken.Define.Pipeline do
     """
   end
 
-  # TODO think about default names based on the specification
-  # "type - serialized json definition"
   # TODO definition should go to the component code.
   defp build_components(components, pipeline_module, helpers) do
     components
@@ -50,19 +48,26 @@ defmodule Kraken.Define.Pipeline do
         |> String.downcase()
         |> String.replace("-", "_")
 
+      name = definition["name"] || type_with_random_postfix(type)
+
+      component_module =
+        "Elixir.#{pipeline_module}.#{name}"
+        |> Utils.modulize()
+        |> String.to_atom()
+
       component =
         case type do
           "stage" ->
-            {:ok, stage_module} = Stage.define(definition, pipeline_module, helpers)
+            {:ok, ^component_module} = Stage.define(definition, component_module, helpers)
 
             %Components.Stage{
-              name: definition["name"],
-              module: :"Elixir.#{stage_module}",
+              name: name,
+              module: component_module,
               function: :call
             }
 
           "switch" ->
-            {:ok, switch_module} = Switch.define(definition, pipeline_module, helpers)
+            {:ok, ^component_module} = Switch.define(definition, component_module, helpers)
 
             branches =
               Enum.reduce(definition["branches"], %{}, fn {key, inner_pipe_spec}, branch_pipes ->
@@ -72,8 +77,8 @@ defmodule Kraken.Define.Pipeline do
               end)
 
             %Components.Switch{
-              name: definition["name"],
-              module: :"Elixir.#{switch_module}",
+              name: name,
+              module: component_module,
               function: :call,
               branches: branches
             }
@@ -82,62 +87,54 @@ defmodule Kraken.Define.Pipeline do
             Map.get(definition, "to") || raise "Missing 'to'"
 
             %Components.Clone{
-              name: definition["name"],
+              name: name,
               to: build_components(definition["to"], pipeline_module, helpers)
             }
 
           "dead_end" ->
-            %Components.DeadEnd{
-              name: definition["name"]
-            }
+            %Components.DeadEnd{name: name}
 
           "goto_point" ->
-            %Components.GotoPoint{
-              name: definition["name"]
-            }
+            %Components.GotoPoint{name: name}
 
           "goto" ->
-            {:ok, goto_module} = Goto.define(definition, pipeline_module, helpers)
+            {:ok, ^component_module} = Goto.define(definition, component_module, helpers)
 
             %Components.Goto{
-              name: definition["name"],
-              module: :"Elixir.#{goto_module}",
+              name: name,
+              module: component_module,
               function: :call,
               to: Map.get(definition, "to") || raise("Missing 'to'")
             }
 
           "decomposer" ->
-            {:ok, decomposer_module} = Decomposer.define(definition, pipeline_module, helpers)
+            {:ok, ^component_module} = Decomposer.define(definition, component_module, helpers)
 
             %Components.Decomposer{
-              name: definition["name"],
-              module: :"Elixir.#{decomposer_module}",
+              name: name,
+              module: component_module,
               function: :call
             }
 
           "recomposer" ->
-            {:ok, recomposer_module} = Recomposer.define(definition, pipeline_module, helpers)
+            {:ok, ^component_module} = Recomposer.define(definition, component_module, helpers)
 
             %Components.Recomposer{
-              name: definition["name"],
-              module: :"Elixir.#{recomposer_module}",
+              name: name,
+              module: component_module,
               function: :call
             }
 
           "plug" ->
-            {:ok, plug_module} = Plug.define(definition, pipeline_module, helpers)
+            {:ok, ^component_module} = Plug.define(definition, component_module, helpers)
 
             pipeline_name =
               Map.get(definition, "pipeline") || raise "\"pipeline\" must be provided"
 
             pipeline_module = :"Elixir.#{namespace()}.#{Utils.modulize(pipeline_name)}"
 
-            plug = %Components.Plug{name: definition["name"], module: :"Elixir.#{plug_module}"}
-
-            unplug = %Components.Unplug{
-              name: definition["name"],
-              module: :"Elixir.#{plug_module}"
-            }
+            plug = %Components.Plug{name: name, module: component_module}
+            unplug = %Components.Unplug{name: name, module: component_module}
 
             [plug] ++ pipeline_module.alf_components() ++ [unplug]
 
@@ -160,5 +157,9 @@ defmodule Kraken.Define.Pipeline do
 
   defp namespace do
     Configs.pipelines_namespace()
+  end
+
+  defp type_with_random_postfix(type) do
+    "#{type}_#{Utils.random_string()}"
   end
 end

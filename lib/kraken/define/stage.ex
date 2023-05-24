@@ -1,12 +1,7 @@
 defmodule Kraken.Define.Stage do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module, pipeline_helpers \\ []) do
-    stage_module =
-      "#{pipeline_module}.#{definition["name"]}"
-      |> Utils.modulize()
-      |> String.to_atom()
-
+  def define(definition, stage_module, pipeline_helpers \\ []) do
     download = Map.get(definition, "download", false)
     upload = Map.get(definition, "upload", false)
 

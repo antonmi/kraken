@@ -1,12 +1,7 @@
 defmodule Kraken.Define.Plug do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module, pipeline_helpers \\ []) do
-    plug_module =
-      "#{pipeline_module}.#{definition["name"]}"
-      |> Utils.modulize()
-      |> String.to_atom()
-
+  def define(definition, plug_module, pipeline_helpers \\ []) do
     download = Map.get(definition, "download", false)
     upload = Map.get(definition, "upload", false)
     helpers = Utils.helper_modules(definition) ++ pipeline_helpers

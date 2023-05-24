@@ -56,10 +56,8 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
     }
 
     test "define and call decomposer" do
-      {:ok, decomposer_module} =
-        Decomposer.define(@decomposer, Kraken.Pipelines.PipelineWithDecomposer)
-
-      assert decomposer_module == Kraken.Pipelines.PipelineWithDecomposer.Decomposer
+      decomposer_module = Kraken.Pipelines.PipelineWithDecomposer.Decomposer
+      {:ok, ^decomposer_module} = Decomposer.define(@decomposer, decomposer_module)
 
       {events, event} = apply(decomposer_module, :call, [%{"input" => "Hello world"}, %{}])
       assert events == [%{"string" => "Hello"}, %{"string" => "world"}]
@@ -100,10 +98,8 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
     }
 
     test "define and call decomposer" do
-      {:ok, recomposer_module} =
-        Recomposer.define(@recomposer, Kraken.Pipelines.PipelineWithRecomposer)
-
-      assert recomposer_module == Kraken.Pipelines.PipelineWithRecomposer.Recomposer
+      recomposer_module = Kraken.Pipelines.PipelineWithRecomposer.Recomposer
+      {:ok, ^recomposer_module} = Recomposer.define(@recomposer, recomposer_module)
 
       result =
         apply(recomposer_module, :call, [%{"input" => "!!!"}, [%{"string" => "Hello"}], %{}])

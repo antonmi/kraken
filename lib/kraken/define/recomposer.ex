@@ -1,12 +1,7 @@
 defmodule Kraken.Define.Recomposer do
   alias Kraken.Utils
 
-  def define(definition, pipeline_module, pipeline_helpers \\ []) do
-    recomposer_module =
-      "#{pipeline_module}.#{definition["name"]}"
-      |> Utils.modulize()
-      |> String.to_atom()
-
+  def define(definition, recomposer_module, pipeline_helpers \\ []) do
     download = Map.get(definition, "download", false)
     service_name = get_in(definition, ["service", "name"]) || raise "Missing service name!"
 

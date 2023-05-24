@@ -26,8 +26,8 @@ defmodule Kraken.Define.StageTest do
   }
 
   test "define and call stage" do
-    {:ok, stage_module} = Stage.define(@component, Kraken.Pipelines.MyPipeline)
-    assert stage_module == Kraken.Pipelines.MyPipeline.Add
+    stage_module = Kraken.Pipelines.MyPipeline.Add
+    {:ok, ^stage_module} = Stage.define(@component, stage_module)
 
     result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
     assert result == %{"x" => 1, "y" => 2, "z" => 3}
@@ -44,13 +44,12 @@ defmodule Kraken.Define.StageTest do
   test "without upload" do
     component = %{
       "type" => "stage",
-      "name" => "add2",
       "service" => %{"name" => "simple-math", "function" => "add"},
       "download" => %{"a" => "args['x']", "b" => "args['y']"}
     }
 
-    {:ok, stage_module} = Stage.define(component, Kraken.Pipelines.MyPipeline)
-    assert stage_module == Kraken.Pipelines.MyPipeline.Add2
+    stage_module = Kraken.Pipelines.MyPipeline.Add2
+    {:ok, ^stage_module} = Stage.define(component, stage_module)
 
     result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
     assert result == %{"x" => 1, "y" => 2}
@@ -59,14 +58,13 @@ defmodule Kraken.Define.StageTest do
   test "when upload is empty map" do
     component = %{
       "type" => "stage",
-      "name" => "add3",
       "service" => %{"name" => "simple-math", "function" => "add"},
       "download" => %{"a" => "args['x']", "b" => "args['y']"},
       "upload" => %{}
     }
 
-    {:ok, stage_module} = Stage.define(component, Kraken.Pipelines.MyPipeline)
-    assert stage_module == Kraken.Pipelines.MyPipeline.Add3
+    stage_module = Kraken.Pipelines.MyPipeline.Add3
+    {:ok, ^stage_module} = Stage.define(component, stage_module)
 
     result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
     assert result == %{"x" => 1, "y" => 2}
@@ -81,8 +79,8 @@ defmodule Kraken.Define.StageTest do
     }
 
     test "define and call stage" do
-      {:ok, stage_module} = Stage.define(@transform_only_stage, Kraken.Pipelines.MyPipeline)
-      assert stage_module == Kraken.Pipelines.MyPipeline.Transform
+      stage_module = Kraken.Pipelines.MyPipeline.Transform
+      {:ok, ^stage_module} = Stage.define(@transform_only_stage, stage_module)
 
       result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
       assert result == %{"x" => 1, "y" => 2, "z" => 3}
@@ -95,8 +93,8 @@ defmodule Kraken.Define.StageTest do
         "upload" => %{"z" => "args['x'] + args['y']"}
       }
 
-      {:ok, stage_module} = Stage.define(transform_only_stage, Kraken.Pipelines.MyPipeline)
-      assert stage_module == Kraken.Pipelines.MyPipeline.Transform2
+      stage_module = Kraken.Pipelines.MyPipeline.Transform2
+      {:ok, ^stage_module} = Stage.define(transform_only_stage, stage_module)
 
       result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
       assert result == %{"x" => 1, "y" => 2, "z" => 3}
@@ -109,8 +107,8 @@ defmodule Kraken.Define.StageTest do
         "download" => %{"a" => "args['x']", "b" => "args['y']"}
       }
 
-      {:ok, stage_module} = Stage.define(transform_only_stage, Kraken.Pipelines.MyPipeline)
-      assert stage_module == Kraken.Pipelines.MyPipeline.Transform3
+      stage_module = Kraken.Pipelines.MyPipeline.Transform3
+      {:ok, ^stage_module} = Stage.define(transform_only_stage, stage_module)
 
       result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
       assert result == %{"x" => 1, "y" => 2}
@@ -124,8 +122,8 @@ defmodule Kraken.Define.StageTest do
         "upload" => %{}
       }
 
-      {:ok, stage_module} = Stage.define(transform_only_stage, Kraken.Pipelines.MyPipeline)
-      assert stage_module == Kraken.Pipelines.MyPipeline.Transform4
+      stage_module = Kraken.Pipelines.MyPipeline.Transform4
+      {:ok, ^stage_module} = Stage.define(transform_only_stage, stage_module)
 
       result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
       assert result == %{"x" => 1, "y" => 2}
@@ -143,8 +141,8 @@ defmodule Kraken.Define.StageTest do
     }
 
     test "define and call stage" do
-      {:ok, stage_module} = Stage.define(@component_with_helpers, Kraken.Pipelines.MyPipeline)
-      assert stage_module == Kraken.Pipelines.MyPipeline.AddWithHelpers
+      stage_module = Kraken.Pipelines.MyPipeline.AddWithHelpers
+      {:ok, ^stage_module} = Stage.define(@component_with_helpers, stage_module)
 
       result = apply(stage_module, :call, [%{"x" => 1, "y" => 2}, %{}])
       assert result == %{"x" => 1, "y" => 2, "z" => 3}
