@@ -1,0 +1,17 @@
+defmodule Kraken.Services do
+  defdelegate define(definition), to: Octopus
+
+  defdelegate delete(service_name), to: Octopus
+
+  defdelegate status(service_name), to: Octopus
+
+  defdelegate start(service_name, args), to: Octopus
+  def start(service_name), do: start(service_name, %{})
+
+  defdelegate stop(service_name, args), to: Octopus
+  def stop(service_name), do: stop(service_name, %{})
+
+  defdelegate delete(service_name), to: Octopus
+
+  defdelegate call(service_name, function_name, args), to: Octopus
+end

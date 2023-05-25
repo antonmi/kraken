@@ -144,7 +144,12 @@ defmodule Kraken.Define.Pipeline do
             pipeline_module = :"Elixir.#{namespace()}.#{Utils.modulize(pipeline_name)}"
 
             plug = %Components.Plug{name: name, module: component_module, source_code: definition}
-            unplug = %Components.Unplug{name: name, module: component_module, source_code: definition}
+
+            unplug = %Components.Unplug{
+              name: name,
+              module: component_module,
+              source_code: definition
+            }
 
             [plug] ++ pipeline_module.alf_components() ++ [unplug]
 
