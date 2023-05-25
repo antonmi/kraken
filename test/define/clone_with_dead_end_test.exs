@@ -28,7 +28,7 @@ defmodule Kraken.Define.CloneWithDeadEndTest do
           "name" => "simple-math",
           "function" => "add"
         },
-        "upload" => %{
+        "transform" => %{
           "sum" => "args['sum']"
         }
       },
@@ -57,10 +57,10 @@ defmodule Kraken.Define.CloneWithDeadEndTest do
           "name" => "simple-math",
           "function" => "add_one"
         },
-        "download" => %{
+        "prepare" => %{
           "x" => "args['sum']"
         },
-        "upload" => %{
+        "transform" => %{
           "x" => "args['result']"
         }
       }

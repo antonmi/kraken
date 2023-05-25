@@ -22,7 +22,7 @@ defmodule Kraken.Define.SwitchTest do
   @switch %{
     "type" => "switch",
     "name" => "my-switch",
-    "download" => %{
+    "prepare" => %{
       "number" => "args['x']"
     },
     "branches" => %{
@@ -51,7 +51,7 @@ defmodule Kraken.Define.SwitchTest do
       "name" => "simple-math",
       "function" => "add"
     },
-    "upload" => %{
+    "transform" => %{
       "sum" => "args['sum']"
     }
   }
@@ -63,10 +63,10 @@ defmodule Kraken.Define.SwitchTest do
       "name" => "simple-math",
       "function" => "mult_by_two"
     },
-    "download" => %{
+    "prepare" => %{
       "x" => "args['sum']"
     },
-    "upload" => %{
+    "transform" => %{
       "x" => "args['result']"
     }
   }
@@ -78,10 +78,10 @@ defmodule Kraken.Define.SwitchTest do
       "name" => "simple-math",
       "function" => "add_one"
     },
-    "download" => %{
+    "prepare" => %{
       "x" => "args['sum']"
     },
-    "upload" => %{
+    "transform" => %{
       "x" => "args['result']"
     }
   }
@@ -92,7 +92,7 @@ defmodule Kraken.Define.SwitchTest do
       %{
         "type" => "switch",
         "name" => "my-switch",
-        "download" => %{
+        "prepare" => %{
           "number" => "args['sum']"
         },
         "branches" => %{
@@ -127,7 +127,7 @@ defmodule Kraken.Define.SwitchTest do
         "type" => "switch",
         "name" => "my-switch",
         "helpers" => ["Helpers.FetchHelper"],
-        "download" => %{
+        "prepare" => %{
           "number" => "fetch(args, 'sum')"
         },
         "branches" => %{

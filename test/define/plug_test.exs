@@ -25,11 +25,11 @@ defmodule Kraken.Define.PlugTest do
         "name" => "simple-math",
         "function" => "add"
       },
-      "download" => %{
+      "prepare" => %{
         "a" => "args['x']",
         "b" => "args['y']"
       },
-      "upload" => %{
+      "transform" => %{
         "z" => "args['sum']"
       }
     },
@@ -40,10 +40,10 @@ defmodule Kraken.Define.PlugTest do
         "name" => "simple-math",
         "function" => "mult_by_two"
       },
-      "download" => %{
+      "prepare" => %{
         "x" => "args['z']"
       },
-      "upload" => %{
+      "transform" => %{
         "z" => "args['result']"
       }
     }
@@ -67,11 +67,11 @@ defmodule Kraken.Define.PlugTest do
       "type" => "plug",
       "name" => "my-plug",
       "pipeline" => "AddMultPipeline",
-      "download" => %{
+      "prepare" => %{
         "x" => "args['xxx']",
         "y" => "args['yyy']"
       },
-      "upload" => %{
+      "transform" => %{
         "zzz" => "args['z']"
       }
     }
@@ -107,11 +107,11 @@ defmodule Kraken.Define.PlugTest do
       "type" => "plug",
       "name" => "my-plug",
       "pipeline" => "AddMultPipeline",
-      "download" => %{
+      "prepare" => %{
         "x" => "fetch(args, 'xxx')",
         "y" => "fetch(args, 'yyy')"
       },
-      "upload" => %{
+      "transform" => %{
         "zzz" => "get(args, 'z')"
       },
       "helpers" => ["Helpers.FetchHelper"]

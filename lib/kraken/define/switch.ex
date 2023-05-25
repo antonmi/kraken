@@ -3,13 +3,13 @@ defmodule Kraken.Define.Switch do
 
   def define(definition, switch_module, pipeline_helpers \\ []) do
     Map.get(definition, "branches") || raise "Missing branches"
-    download = Map.get(definition, "download", false)
+    prepare = Map.get(definition, "prepare", false)
     condition = Map.get(definition, "condition") || raise "Missing condition"
     helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 
     template()
     |> EEx.eval_string(
-      download: download,
+      prepare: prepare,
       switch_module: switch_module,
       condition: condition,
       helpers: helpers
@@ -28,7 +28,7 @@ defmodule Kraken.Define.Switch do
                    |> Base.decode64!()
                    |> :erlang.binary_to_term()
 
-        @download "<%= Base.encode64(:erlang.term_to_binary(download)) %>"
+        @prepare "<%= Base.encode64(:erlang.term_to_binary(prepare)) %>"
                    |> Base.decode64!()
                    |> :erlang.binary_to_term()
 
@@ -39,7 +39,7 @@ defmodule Kraken.Define.Switch do
         def call(event, _opts) when is_map(event) do
           %Kraken.Define.Switch.Call{
             event: event,
-            download: @download,
+            prepare: @prepare,
             condition: @condition,
             helpers: @helpers
           }
@@ -57,7 +57,7 @@ defmodule Kraken.Define.Switch do
     @moduledoc false
 
     defstruct event: nil,
-              download: false,
+              prepare: false,
               condition: "",
               helpers: []
 
@@ -66,11 +66,11 @@ defmodule Kraken.Define.Switch do
     @spec call(%__MODULE__{}) :: {:ok, map()} | {:error, any()}
     def call(%__MODULE__{
           event: event,
-          download: download,
+          prepare: prepare,
           condition: condition,
           helpers: helpers
         }) do
-      with {:ok, args} <- Transform.transform(event, download, helpers),
+      with {:ok, args} <- Transform.transform(event, prepare, helpers),
            {:ok, branch} <- Utils.eval_string(condition, args: args, helpers: helpers) do
         branch
       else

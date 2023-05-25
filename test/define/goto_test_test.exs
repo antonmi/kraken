@@ -31,7 +31,7 @@ defmodule Kraken.Define.GotoTest do
           "name" => "simple-math",
           "function" => "add_one"
         },
-        "upload" => %{
+        "transform" => %{
           "x" => "args['result']"
         }
       },
@@ -76,7 +76,7 @@ defmodule Kraken.Define.GotoTest do
           "name" => "simple-math",
           "function" => "add_one"
         },
-        "upload" => %{
+        "transform" => %{
           "x" => "args['result']"
         }
       },

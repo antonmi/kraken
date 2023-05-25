@@ -2,8 +2,8 @@ defmodule Kraken.Define.Stage do
   alias Kraken.Utils
 
   def define(definition, stage_module, pipeline_helpers \\ []) do
-    download = Map.get(definition, "download", false)
-    upload = Map.get(definition, "upload", false)
+    prepare = Map.get(definition, "prepare", false)
+    transform = Map.get(definition, "transform", false)
 
     helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 
@@ -24,8 +24,8 @@ defmodule Kraken.Define.Stage do
       stage_module: stage_module,
       service_name: service_name,
       service_function: service_function,
-      download: download,
-      upload: upload,
+      prepare: prepare,
+      transform: transform,
       helpers: helpers
     )
     |> Utils.eval_code()
@@ -38,11 +38,11 @@ defmodule Kraken.Define.Stage do
   defp template() do
     """
       defmodule <%= stage_module %> do
-        @download "<%= Base.encode64(:erlang.term_to_binary(download)) %>"
+        @prepare "<%= Base.encode64(:erlang.term_to_binary(prepare)) %>"
                   |> Base.decode64!()
                   |> :erlang.binary_to_term()
 
-        @upload "<%= Base.encode64(:erlang.term_to_binary(upload)) %>"
+        @transform "<%= Base.encode64(:erlang.term_to_binary(transform)) %>"
                 |> Base.decode64!()
                 |> :erlang.binary_to_term()
 
@@ -55,8 +55,8 @@ defmodule Kraken.Define.Stage do
             event: event,
             service_name: "<%= service_name %>",
             service_function: "<%= service_function %>",
-            download: @download,
-            upload: @upload,
+            prepare: @prepare,
+            transform: @transform,
             helpers: @helpers
           }
           |> Kraken.Define.Stage.Call.call()
@@ -81,8 +81,8 @@ defmodule Kraken.Define.Stage do
     defstruct event: nil,
               service_name: nil,
               service_function: nil,
-              download: false,
-              upload: false,
+              prepare: false,
+              transform: false,
               helpers: []
 
     alias Octopus.Transform
@@ -92,17 +92,17 @@ defmodule Kraken.Define.Stage do
           event: event,
           service_name: service_name,
           service_function: service_function,
-          download: download,
-          upload: upload,
+          prepare: prepare,
+          transform: transform,
           helpers: helpers
         }) do
       with {:ok, args} <-
-             Transform.transform(event, download, helpers),
+             Transform.transform(event, prepare, helpers),
            {:ok, args} <-
              do_call(service_name, service_function, args),
            {:ok, args} <-
-             Transform.transform(args, upload, helpers) do
-        event = upload_to_event(event, args, upload)
+             Transform.transform(args, transform, helpers) do
+        event = upload_to_event(event, args, transform)
         {:ok, event}
       else
         {:error, error} -> {:error, error}
@@ -117,7 +117,7 @@ defmodule Kraken.Define.Stage do
 
     defp upload_to_event(event, _args, false), do: event
 
-    defp upload_to_event(event, args, upload) when is_map(upload) do
+    defp upload_to_event(event, args, transform) when is_map(transform) do
       Map.merge(event, args)
     end
   end

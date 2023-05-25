@@ -2,7 +2,7 @@ defmodule Kraken.Define.Recomposer do
   alias Kraken.Utils
 
   def define(definition, recomposer_module, pipeline_helpers \\ []) do
-    download = Map.get(definition, "download", false)
+    prepare = Map.get(definition, "prepare", false)
     service_name = get_in(definition, ["service", "name"]) || raise "Missing service name!"
 
     service_function =
@@ -20,7 +20,7 @@ defmodule Kraken.Define.Recomposer do
       recomposer_module: recomposer_module,
       service_name: service_name,
       service_function: service_function,
-      download: download,
+      prepare: prepare,
       recompose: recompose,
       helpers: helpers
     )
@@ -34,7 +34,7 @@ defmodule Kraken.Define.Recomposer do
   defp template() do
     """
       defmodule <%= recomposer_module %> do
-        @download "<%= Base.encode64(:erlang.term_to_binary(download)) %>"
+        @prepare "<%= Base.encode64(:erlang.term_to_binary(prepare)) %>"
                    |> Base.decode64!()
                    |> :erlang.binary_to_term()
 
@@ -52,7 +52,7 @@ defmodule Kraken.Define.Recomposer do
             events: events,
             service_name: "<%= service_name %>",
             service_function: "<%= service_function %>",
-            download: @download,
+            prepare: @prepare,
             recompose: @recompose,
             helpers: @helpers
           }
@@ -73,7 +73,7 @@ defmodule Kraken.Define.Recomposer do
               events: [],
               service_name: nil,
               service_function: nil,
-              download: false,
+              prepare: false,
               recompose: false,
               helpers: []
 
@@ -85,12 +85,12 @@ defmodule Kraken.Define.Recomposer do
           events: events,
           service_name: service_name,
           service_function: service_function,
-          download: download,
+          prepare: prepare,
           recompose: recompose,
           helpers: helpers
         }) do
       with {:ok, args} <-
-             Transform.transform(event, download, helpers),
+             Transform.transform(event, prepare, helpers),
            {:ok, args} <-
              Octopus.call(service_name, service_function, %{"event" => args, "events" => events}),
            {:ok, args} <-

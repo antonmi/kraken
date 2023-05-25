@@ -2,15 +2,15 @@ defmodule Kraken.Define.Plug do
   alias Kraken.Utils
 
   def define(definition, plug_module, pipeline_helpers \\ []) do
-    download = Map.get(definition, "download", false)
-    upload = Map.get(definition, "upload", false)
+    prepare = Map.get(definition, "prepare", false)
+    transform = Map.get(definition, "transform", false)
     helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 
     template()
     |> EEx.eval_string(
       plug_module: plug_module,
-      download: download,
-      upload: upload,
+      prepare: prepare,
+      transform: transform,
       helpers: helpers
     )
     |> Utils.eval_code()
@@ -23,11 +23,11 @@ defmodule Kraken.Define.Plug do
   defp template() do
     """
       defmodule <%= plug_module %> do
-        @download "<%= Base.encode64(:erlang.term_to_binary(download)) %>"
+        @prepare "<%= Base.encode64(:erlang.term_to_binary(prepare)) %>"
                   |> Base.decode64!()
                   |> :erlang.binary_to_term()
 
-        @upload "<%= Base.encode64(:erlang.term_to_binary(upload)) %>"
+        @transform "<%= Base.encode64(:erlang.term_to_binary(transform)) %>"
                 |> Base.decode64!()
                 |> :erlang.binary_to_term()
 
@@ -38,7 +38,7 @@ defmodule Kraken.Define.Plug do
         def plug(event, _) when is_map(event) do
           %Kraken.Define.Plug.Call{
             event: event,
-            download: @download,
+            prepare: @prepare,
             helpers: @helpers
           }
           |> Kraken.Define.Plug.Call.plug()
@@ -56,7 +56,7 @@ defmodule Kraken.Define.Plug do
           %Kraken.Define.Plug.Call{
             event: event,
             prev_event: prev_event,
-            upload: @upload,
+            transform: @transform,
             helpers: @helpers
           }
           |> Kraken.Define.Plug.Call.unplug()
@@ -78,8 +78,8 @@ defmodule Kraken.Define.Plug do
 
     defstruct event: nil,
               prev_event: nil,
-              download: false,
-              upload: false,
+              prepare: false,
+              transform: false,
               helpers: []
 
     alias Octopus.Transform
@@ -87,10 +87,10 @@ defmodule Kraken.Define.Plug do
     @spec plug(%__MODULE__{}) :: {:ok, map()} | {:error, any()}
     def plug(%__MODULE__{
           event: event,
-          download: download,
+          prepare: prepare,
           helpers: helpers
         }) do
-      case Transform.transform(event, download, helpers) do
+      case Transform.transform(event, prepare, helpers) do
         {:ok, event} ->
           {:ok, event}
 
@@ -103,12 +103,12 @@ defmodule Kraken.Define.Plug do
     def unplug(%__MODULE__{
           event: event,
           prev_event: prev_event,
-          upload: upload,
+          transform: transform,
           helpers: helpers
         }) do
-      case Transform.transform(event, upload, helpers) do
+      case Transform.transform(event, transform, helpers) do
         {:ok, args} ->
-          event = upload_to_event(prev_event, args, upload)
+          event = upload_to_event(prev_event, args, transform)
           {:ok, event}
 
         {:error, error} ->
@@ -118,7 +118,7 @@ defmodule Kraken.Define.Plug do
 
     defp upload_to_event(event, _args, false), do: event
 
-    defp upload_to_event(event, args, upload) when is_map(upload) do
+    defp upload_to_event(event, args, transform) when is_map(transform) do
       Map.merge(event, args)
     end
   end

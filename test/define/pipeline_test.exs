@@ -25,11 +25,11 @@ defmodule Kraken.Define.PipelineTest do
         "name" => "simple-math",
         "function" => "add"
       },
-      "download" => %{
+      "prepare" => %{
         "a" => "args['x']",
         "b" => "args['y']"
       },
-      "upload" => %{
+      "transform" => %{
         "z" => "args['sum']"
       }
     },
@@ -39,10 +39,10 @@ defmodule Kraken.Define.PipelineTest do
         "name" => "simple-math",
         "function" => "mult_by_two"
       },
-      "download" => %{
+      "prepare" => %{
         "x" => "args['z']"
       },
-      "upload" => %{
+      "transform" => %{
         "z" => "args['result']"
       }
     },

@@ -21,8 +21,8 @@ defmodule Kraken.Define.StageTest do
     "type" => "stage",
     "name" => "add",
     "service" => %{"name" => "simple-math", "function" => "add"},
-    "download" => %{"a" => "args['x']", "b" => "args['y']"},
-    "upload" => %{"z" => "args['sum']"}
+    "prepare" => %{"a" => "args['x']", "b" => "args['y']"},
+    "transform" => %{"z" => "args['sum']"}
   }
 
   test "define and call stage" do
@@ -41,11 +41,11 @@ defmodule Kraken.Define.StageTest do
     end
   end
 
-  test "without upload" do
+  test "without transform" do
     component = %{
       "type" => "stage",
       "service" => %{"name" => "simple-math", "function" => "add"},
-      "download" => %{"a" => "args['x']", "b" => "args['y']"}
+      "prepare" => %{"a" => "args['x']", "b" => "args['y']"}
     }
 
     stage_module = Kraken.Pipelines.MyPipeline.Add2
@@ -55,12 +55,12 @@ defmodule Kraken.Define.StageTest do
     assert result == %{"x" => 1, "y" => 2}
   end
 
-  test "when upload is empty map" do
+  test "when transform is empty map" do
     component = %{
       "type" => "stage",
       "service" => %{"name" => "simple-math", "function" => "add"},
-      "download" => %{"a" => "args['x']", "b" => "args['y']"},
-      "upload" => %{}
+      "prepare" => %{"a" => "args['x']", "b" => "args['y']"},
+      "transform" => %{}
     }
 
     stage_module = Kraken.Pipelines.MyPipeline.Add3
@@ -74,8 +74,8 @@ defmodule Kraken.Define.StageTest do
     @transform_only_stage %{
       "type" => "stage",
       "name" => "transform",
-      "download" => %{"a" => "args['x']", "b" => "args['y']"},
-      "upload" => %{"z" => "args['a'] + args['b']"}
+      "prepare" => %{"a" => "args['x']", "b" => "args['y']"},
+      "transform" => %{"z" => "args['a'] + args['b']"}
     }
 
     test "define and call stage" do
@@ -86,11 +86,11 @@ defmodule Kraken.Define.StageTest do
       assert result == %{"x" => 1, "y" => 2, "z" => 3}
     end
 
-    test "define and call stage with upload only" do
+    test "define and call stage with transform only" do
       transform_only_stage = %{
         "type" => "stage",
         "name" => "transform2",
-        "upload" => %{"z" => "args['x'] + args['y']"}
+        "transform" => %{"z" => "args['x'] + args['y']"}
       }
 
       stage_module = Kraken.Pipelines.MyPipeline.Transform2
@@ -100,11 +100,11 @@ defmodule Kraken.Define.StageTest do
       assert result == %{"x" => 1, "y" => 2, "z" => 3}
     end
 
-    test "define and call stage with download only" do
+    test "define and call stage with prepare only" do
       transform_only_stage = %{
         "type" => "stage",
         "name" => "transform3",
-        "download" => %{"a" => "args['x']", "b" => "args['y']"}
+        "prepare" => %{"a" => "args['x']", "b" => "args['y']"}
       }
 
       stage_module = Kraken.Pipelines.MyPipeline.Transform3
@@ -114,12 +114,12 @@ defmodule Kraken.Define.StageTest do
       assert result == %{"x" => 1, "y" => 2}
     end
 
-    test "define and call stage with empty upload" do
+    test "define and call stage with empty transform" do
       transform_only_stage = %{
         "type" => "stage",
         "name" => "transform4",
-        "download" => %{"a" => "args['x']", "b" => "args['y']"},
-        "upload" => %{}
+        "prepare" => %{"a" => "args['x']", "b" => "args['y']"},
+        "transform" => %{}
       }
 
       stage_module = Kraken.Pipelines.MyPipeline.Transform4
@@ -135,8 +135,8 @@ defmodule Kraken.Define.StageTest do
       "type" => "stage",
       "name" => "add-with-helpers",
       "service" => %{"name" => "simple-math", "function" => "add"},
-      "download" => %{"a" => "fetch(args, 'x')", "b" => "fetch(args, 'y')"},
-      "upload" => %{"z" => "fetch(args, 'sum')"},
+      "prepare" => %{"a" => "fetch(args, 'x')", "b" => "fetch(args, 'y')"},
+      "transform" => %{"z" => "fetch(args, 'sum')"},
       "helpers" => ["Helpers.FetchHelper"]
     }
 
@@ -151,7 +151,7 @@ defmodule Kraken.Define.StageTest do
     @pipeline_with_helpers %{
       "name" => "PipelineWithHelpers",
       "components" => [
-        Map.put(@component_with_helpers, "upload", %{"z" => "get(args, 'sum')"})
+        Map.put(@component_with_helpers, "transform", %{"z" => "get(args, 'sum')"})
       ],
       "helpers" => ["Helpers.GetHelper"]
     }

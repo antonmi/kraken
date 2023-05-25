@@ -42,7 +42,7 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
     @decomposer %{
       "type" => "decomposer",
       "name" => "decomposer",
-      "download" => %{
+      "prepare" => %{
         "string" => "args['input']"
       },
       "service" => %{
@@ -84,7 +84,7 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
     @recomposer %{
       "type" => "recomposer",
       "name" => "recomposer",
-      "download" => %{
+      "prepare" => %{
         "string" => "args['input']"
       },
       "service" => %{
@@ -142,7 +142,7 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
         %{
           "type" => "stage",
           "name" => "convert-string-back-to-input",
-          "upload" => %{
+          "transform" => %{
             "input" => "args['string']"
           }
         },
@@ -173,7 +173,7 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
         %{
           "type" => "decomposer",
           "name" => "decomposer",
-          "download" => %{
+          "prepare" => %{
             "string" => "fetch(args, 'input')"
           },
           "service" => %{
@@ -189,14 +189,14 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
         %{
           "type" => "stage",
           "name" => "convert-string-back-to-input",
-          "upload" => %{
+          "transform" => %{
             "input" => "args['string']"
           }
         },
         %{
           "type" => "recomposer",
           "name" => "recomposer",
-          "download" => %{
+          "prepare" => %{
             "string" => "fetch(args, 'input')"
           },
           "service" => %{
