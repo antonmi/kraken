@@ -79,14 +79,66 @@ defmodule Kraken.Api.Requests.ServicesTest do
 
       assert conn.resp_body == "{\"status\":\":not_ready\"}"
     end
+  end
 
-    test "works with post" do
+  describe "definition" do
+    setup do
+      Services.define(@definition)
+      :ok
+    end
+
+    test "success case" do
       conn =
-        :post
-        |> conn("/services/status/simple-math")
+        :get
+        |> conn("/services/definition/simple-math")
         |> Router.call(%{})
 
-      assert conn.resp_body == "{\"status\":\":not_ready\"}"
+      assert conn.resp_body == Jason.encode!(@definition)
+    end
+
+    test "error case, undefined service" do
+      conn =
+        :get
+        |> conn("/services/definition/undefined")
+        |> Router.call(%{})
+
+      assert conn.resp_body == "{\"error\":\":undefined\"}"
+    end
+  end
+
+  describe "state" do
+    setup do
+      Services.define(@definition)
+      :ok
+    end
+
+    test "success case" do
+      Services.start("simple-math")
+
+      conn =
+        :get
+        |> conn("/services/state/simple-math")
+        |> Router.call(%{})
+
+      assert conn.resp_body =~ "defmodule SimpleMath do"
+    end
+
+    test "error case, not ready" do
+      conn =
+        :get
+        |> conn("/services/state/simple-math")
+        |> Router.call(%{})
+
+      assert conn.resp_body == "{\"error\":\":not_ready\"}"
+    end
+
+    test "error case, undefined service" do
+      conn =
+        :get
+        |> conn("/services/state/undefined")
+        |> Router.call(%{})
+
+      assert conn.resp_body == "{\"error\":\":undefined\"}"
     end
   end
 

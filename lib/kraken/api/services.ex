@@ -23,6 +23,26 @@ defmodule Kraken.Api.Services do
     {:ok, Jason.encode!(%{"status" => inspect(status)})}
   end
 
+  def definition(service_name) do
+    case Services.definition(service_name) do
+      {:ok, definition} ->
+        {:ok, Jason.encode!(definition)}
+
+      {:error, error} ->
+        {:error, Jason.encode!(%{"error" => inspect(error)})}
+    end
+  end
+
+  def state(service_name) do
+    case Services.state(service_name) do
+      {:ok, definition} ->
+        {:ok, Jason.encode!(definition)}
+
+      {:error, error} ->
+        {:error, Jason.encode!(%{"error" => inspect(error)})}
+    end
+  end
+
   def call(service_name, function_name, payload) do
     with {:ok, args} <- Jason.decode(payload),
          {:ok, result} <- Services.call(service_name, function_name, args) do

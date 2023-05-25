@@ -5,6 +5,10 @@ defmodule Kraken.Services do
 
   defdelegate status(service_name), to: Octopus
 
+  defdelegate definition(service_name), to: Octopus
+
+  defdelegate state(service_name), to: Octopus
+
   defdelegate start(service_name, args), to: Octopus
   def start(service_name), do: start(service_name, %{})
 

@@ -63,7 +63,6 @@ defmodule Kraken.Api.Router do
     end
   end
 
-
   post "/services/delete/:name" do
     case Services.delete(conn.params["name"]) do
       {:ok, response} ->
@@ -74,14 +73,29 @@ defmodule Kraken.Api.Router do
     end
   end
 
-  post "/services/status/:name" do
+  get "/services/status/:name" do
     {:ok, response} = Services.status(conn.params["name"])
     send_resp(conn, 200, response)
   end
 
-  get "/services/status/:name" do
-    {:ok, response} = Services.status(conn.params["name"])
-    send_resp(conn, 200, response)
+  get "/services/definition/:name" do
+    case Services.definition(conn.params["name"]) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  get "/services/state/:name" do
+    case Services.state(conn.params["name"]) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
   end
 
   match _ do
