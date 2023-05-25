@@ -1,6 +1,4 @@
 defmodule Kraken.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
@@ -8,13 +6,15 @@ defmodule Kraken.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: Kraken.Worker.start_link(arg)
-      # {Kraken.Worker, arg}
+      {Plug.Cowboy, scheme: :http, plug: OctopusAgent.Router, options: [port: port()]}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Kraken.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp port() do
+    (System.get_env("KRAKEN_PORT") || "4001")
+    |> String.to_integer()
   end
 end

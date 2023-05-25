@@ -43,7 +43,6 @@ defmodule Kraken.Define.Pipeline do
     """
   end
 
-  # TODO definition should go to the component code.
   defp build_components(components, pipeline_module, helpers) do
     components
     |> Enum.reduce([], fn definition, acc ->
