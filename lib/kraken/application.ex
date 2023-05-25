@@ -6,7 +6,7 @@ defmodule Kraken.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {Plug.Cowboy, scheme: :http, plug: OctopusAgent.Router, options: [port: port()]}
+      {Plug.Cowboy, scheme: :http, plug: Kraken.Api.Router, options: [port: port()]}
     ]
 
     opts = [strategy: :one_for_one, name: Kraken.Supervisor]
