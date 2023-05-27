@@ -72,4 +72,19 @@ defmodule Kraken.Define.PipelineTest do
 
     assert apply(Kraken.Pipelines.MyPipeline, :definition, []) == @pipeline
   end
+
+  test "define and call sync pipeline" do
+    Pipeline.define(@pipeline)
+    apply(Kraken.Pipelines.MyPipeline, :start, [[sync: true]])
+
+    components = apply(Kraken.Pipelines.MyPipeline, :components, [])
+    assert Enum.all?(components, &is_reference(&1.pid))
+
+    assert capture_log(fn ->
+             result = apply(Kraken.Pipelines.MyPipeline, :call, [%{"x" => 1, "y" => 2}])
+             assert result == %{"x" => 1, "y" => 2, "z" => 6}
+           end) =~ "{\"z\", 6}"
+
+    assert apply(Kraken.Pipelines.MyPipeline, :definition, []) == @pipeline
+  end
 end
