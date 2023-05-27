@@ -60,8 +60,8 @@ Each use-case has corresponding pipeline.
 
 Under the hood **Kraken** uses: 
 - the [ALF framework](https://github.com/antonmi/ALF) for building
-pipelines of components (based on [Elixir GenStages](https://hexdocs.pm/gen_stage/GenStage.html)).
-- the [Octopus](https://github.com/antonmi/octopus) library for defining intefaces to services in the system.
+pipelines of components (based on the Elixir [GenStage](https://hexdocs.pm/gen_stage/GenStage.html) library).
+- the [Octopus](https://github.com/antonmi/octopus) library for defining interfaces to services in the system.
 
 Therefore, it's important to have a basic understanding of the idea behind these two libraries
 

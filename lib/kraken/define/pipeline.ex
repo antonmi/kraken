@@ -69,7 +69,8 @@ defmodule Kraken.Define.Pipeline do
               name: name,
               module: component_module,
               function: :call,
-              source_code: definition
+              source_code: definition,
+              count: Map.get(definition, "count", 1)
             }
 
           "switch" ->

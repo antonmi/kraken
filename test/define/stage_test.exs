@@ -164,4 +164,30 @@ defmodule Kraken.Define.StageTest do
       assert result == %{"x" => 1, "y" => 2, "z" => 3}
     end
   end
+
+  describe "count in stage" do
+    @component_with_count %{
+      "type" => "stage",
+      "name" => "add",
+      "count" => 3,
+      "service" => %{"name" => "simple-math", "function" => "add"},
+      "prepare" => %{"a" => "args['x']", "b" => "args['y']"},
+      "transform" => %{"z" => "args['sum']"}
+    }
+
+    @pipeline_with_count %{
+      "name" => "PipelineWithCount",
+      "components" => [@component_with_count]
+    }
+
+    test "the count" do
+      Pipeline.define(@pipeline_with_count)
+      apply(Kraken.Pipelines.PipelineWithCount, :start, [])
+      components = apply(Kraken.Pipelines.PipelineWithCount, :components, [])
+      assert length(components) == 5
+
+      result = apply(Kraken.Pipelines.PipelineWithCount, :call, [%{"x" => 1, "y" => 2}])
+      assert result == %{"x" => 1, "y" => 2, "z" => 3}
+    end
+  end
 end
