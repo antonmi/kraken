@@ -1,7 +1,8 @@
 defmodule Kraken.Api.Router do
   use Plug.Router
 
-  alias Kraken.Api.Services
+  alias Kraken.Api.{Pipelines, Services}
+  alias Kraken.Utils
 
   plug(Plug.Logger, log: :debug)
   plug(:match)
@@ -14,6 +15,8 @@ defmodule Kraken.Api.Router do
   get "/favicon.ico" do
     send_resp(conn, 200, "sorry, no icon")
   end
+
+  # services
 
   post "/services/define" do
     {:ok, body, conn} = read_body(conn)
@@ -92,6 +95,122 @@ defmodule Kraken.Api.Router do
     case Services.state(conn.params["name"]) do
       {:ok, response} ->
         send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  # pipelines
+
+  post "/pipelines/define" do
+    {:ok, body, conn} = read_body(conn)
+
+    case Pipelines.define(body) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  get "/pipelines/status/:name" do
+    {:ok, response} = Pipelines.status(conn.params["name"])
+    send_resp(conn, 200, response)
+  end
+
+  get "/pipelines/definition/:name" do
+    case Pipelines.definition(conn.params["name"]) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/pipelines/start/:name" do
+    {:ok, body, conn} = read_body(conn)
+    conn = fetch_query_params(conn)
+
+    case Pipelines.start(conn.params, body) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/pipelines/stop/:name" do
+    case Pipelines.stop(conn.params["name"]) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/pipelines/delete/:name" do
+    case Pipelines.delete(conn.params["name"]) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/pipelines/call/:name" do
+    {:ok, body, conn} = read_body(conn)
+    conn = fetch_query_params(conn)
+
+    case Pipelines.call(conn.params, body) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/pipelines/cast/:name" do
+    {:ok, body, conn} = read_body(conn)
+    conn = fetch_query_params(conn)
+
+    case Pipelines.cast(conn.params, body) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/pipelines/stream/:name" do
+    {:ok, body, conn} = read_body(conn)
+    conn = fetch_query_params(conn)
+
+    case Pipelines.stream(conn.params, body) do
+      {:ok, stream} ->
+        conn = send_chunked(conn, 200)
+
+        Enum.reduce_while(stream, conn, fn event, conn ->
+          chunk =
+            event
+            |> Utils.struct_to_map()
+            |> Jason.encode!()
+
+          case Plug.Conn.chunk(conn, chunk) do
+            {:ok, conn} ->
+              {:cont, conn}
+
+            {:error, :closed} ->
+              {:halt, conn}
+          end
+        end)
 
       {:error, response} ->
         send_resp(conn, 400, response)

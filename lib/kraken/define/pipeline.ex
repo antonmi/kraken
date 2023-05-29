@@ -4,11 +4,12 @@ defmodule Kraken.Define.Pipeline do
   alias ALF.Components
 
   def define(definition) do
-    name = definition["name"] || raise "Provide pipeline name"
+    name = definition["name"] || raise "Pipeline must have name!"
     pipeline_module = :"#{namespace()}.#{Utils.modulize(name)}"
 
     helpers = Utils.helper_modules(definition)
 
+    definition["components"] || raise "Missing 'components'!"
     components = build_components(definition["components"], pipeline_module, helpers)
 
     template()
