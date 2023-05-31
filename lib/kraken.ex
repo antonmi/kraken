@@ -16,28 +16,48 @@ defmodule Kraken do
 
   @spec call(list(map())) :: list(map() | {:error, any()}) | {:error, any()}
   def call(events, opts) when is_list(events) do
-    events
-    |> Enum.group_by(&Map.get(&1, "type"))
-    |> Enum.map(fn {_type, events} ->
-      Task.async(fn -> call_many(events, opts) end)
-    end)
-    |> Enum.map(&Task.await(&1, :infinity))
-    |> List.flatten()
+    cast_or_call_for_list(:call, events, opts)
   end
 
-  defp call_many(events, opts) when is_list(events) do
-    event = List.first(events)
+  def cast(events, opts \\ %{})
 
+  @spec cast(map(), map()) :: reference() | list(reference()) | {:error, any()}
+  def cast(event, opts) when is_map(event) do
     with {:ok, type} <- fetch_type(event),
          {:ok, pipeline} <- get_route(type) do
-      Pipelines.call(pipeline, events, opts)
+      Pipelines.cast(pipeline, event, opts)
     else
       {:error, error} ->
         {:error, error}
     end
   end
 
-  # def call for list -> groups by type and calls in tasks
+  @spec cast(list(map()), map()) :: reference() | list(reference()) | {:error, any()}
+  def cast(events, opts) when is_list(events) do
+    cast_or_call_for_list(:cast, events, opts)
+  end
+
+  defp cast_or_call_for_list(action, events, opts) do
+    events
+    |> Enum.group_by(&Map.get(&1, "type"))
+    |> Enum.map(fn {_type, events} ->
+      Task.async(fn -> call_or_cast_many(action, events, opts) end)
+    end)
+    |> Enum.map(&Task.await(&1, :infinity))
+    |> List.flatten()
+  end
+
+  defp call_or_cast_many(action, events, opts) when is_list(events) do
+    event = List.first(events)
+
+    with {:ok, type} <- fetch_type(event),
+         {:ok, pipeline} <- get_route(type) do
+      apply(Pipelines, action, [pipeline, events, opts])
+    else
+      {:error, error} ->
+        {:error, error}
+    end
+  end
 
   defp fetch_type(event) do
     case Map.get(event, "type") do

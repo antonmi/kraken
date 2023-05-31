@@ -149,7 +149,7 @@ defmodule Kraken.Pipelines do
       {:error, error}
   end
 
-  @spec cast(String.t(), map(), map()) :: map() | list(map()) | {:error, any()}
+  @spec cast(String.t(), map(), map()) :: reference() | list(reference()) | {:error, any()}
   def cast(pipeline_name, args, opts \\ %{})
       when is_binary(pipeline_name) and (is_map(args) or is_list(args)) do
     opts = [send_result: fetch_boolean_arg(opts, "send_result")]

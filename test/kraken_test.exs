@@ -157,4 +157,78 @@ defmodule KrakenTest do
       assert error == %RuntimeError{message: ":not_ready"}
     end
   end
+
+  describe "cast" do
+    test "success" do
+      ref = Kraken.cast(@event)
+      assert is_reference(ref)
+    end
+
+    test "when no type in event" do
+      assert {:error, :no_type} = Kraken.cast(Map.put(@event, "type", nil))
+    end
+
+    test "when no route for the type" do
+      assert {:error, :no_route_for_type} = Kraken.cast(Map.put(@event, "type", "unknown"))
+    end
+
+    test "when pipeline is not ready" do
+      Pipelines.stop("the-pipeline")
+      assert {:error, :not_ready} = Kraken.cast(@event)
+    end
+
+    test "when service is stopped it still returns a reference" do
+      Octopus.stop("simple-math")
+      ref = Kraken.cast(@event)
+      assert is_reference(ref)
+    end
+  end
+
+  describe "cast with list of different events" do
+    setup do
+      {:ok, "another-pipeline"} = Pipelines.define(@another_pipeline)
+      {:ok, _module} = Pipelines.start("another-pipeline")
+
+      on_exit(fn ->
+        Pipelines.delete("another-pipeline")
+      end)
+
+      :ok = Kraken.Routes.delete()
+      routes = Map.put(@routes, "another-event", "another-pipeline")
+      {:ok, _module} = Kraken.Routes.define(routes)
+      :ok
+    end
+
+    test "success" do
+      results = Kraken.cast(@events)
+      Enum.all?(results, &is_reference(&1))
+    end
+
+    test "when no type in event" do
+      events = [%{"x" => 1, "y" => 2} | @events]
+      results = Kraken.cast(events)
+      assert length(results) == 5
+      assert Enum.member?(results, {:error, :no_type})
+    end
+
+    test "when no route for the type" do
+      events = [%{"type" => "unknown", "x" => 1, "y" => 2} | @events]
+      results = Kraken.cast(events)
+      assert length(results) == 5
+      assert Enum.member?(results, {:error, :no_route_for_type})
+    end
+
+    test "when pipeline is not ready" do
+      Pipelines.stop("the-pipeline")
+      results = Kraken.cast(@events)
+      assert length(results) == 3
+      assert Enum.member?(results, {:error, :not_ready})
+    end
+
+    test "when service is stopped it still returns a list of references" do
+      Octopus.stop("simple-math")
+      results = Kraken.cast(@events)
+      Enum.all?(results, &is_reference(&1))
+    end
+  end
 end
