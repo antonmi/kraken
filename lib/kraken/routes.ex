@@ -20,4 +20,11 @@ defmodule Kraken.Routes do
     UndefinedFunctionError ->
       {:error, :no_routes}
   end
+
+  @spec delete() :: :ok
+  def delete() do
+    :code.soft_purge(Kraken.RoutingTable)
+    :code.delete(Kraken.RoutingTable)
+    :ok
+  end
 end

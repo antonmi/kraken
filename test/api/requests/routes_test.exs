@@ -42,8 +42,7 @@ defmodule Kraken.Api.Requests.RoutesTest do
     end
 
     test "when routes undefined" do
-      :code.soft_purge(Kraken.RoutingTable)
-      :code.delete(Kraken.RoutingTable)
+      Kraken.Routes.delete()
 
       conn =
         :get
