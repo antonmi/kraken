@@ -177,7 +177,6 @@ defmodule Kraken.Pipelines do
       {:error, error}
   end
 
-  @spec stream(String.t(), map(), map()) :: map() | list(map()) | {:error, any()}
   def stream(pipeline_name, args, opts \\ %{})
       when is_list(args)
       when is_binary(pipeline_name) and (is_map(args) or is_list(args)) do

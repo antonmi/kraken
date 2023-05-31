@@ -252,6 +252,7 @@ defmodule Kraken.PipelinesTest do
       events = [%{"x" => 1, "y" => 2}, %{"x" => 3, "y" => 4}]
 
       stream = Pipelines.stream("the_pipeline", events)
+      assert is_function(stream)
 
       assert Enum.to_list(stream) == [
                %{"x" => 1, "y" => 2, "z" => 3},
