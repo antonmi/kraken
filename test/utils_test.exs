@@ -1,5 +1,5 @@
 defmodule Kraken.UtilsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Kraken.Utils
 
   describe "struct_to_map" do
