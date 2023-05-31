@@ -1,21 +1,46 @@
 defmodule Kraken do
   alias Kraken.Pipelines
 
-  @spec call(map()) :: map() | list(map()) | {:error, any()}
-  def call(args, opts \\ %{}) when is_map(args) do
-    with {:ok, type} <- fetch_type(args),
+  def call(events, opts \\ %{})
+
+  @spec call(map()) :: map() | {:error, any()}
+  def call(event, opts) when is_map(event) do
+    with {:ok, type} <- fetch_type(event),
          {:ok, pipeline} <- get_route(type) do
-      Pipelines.call(pipeline, args, opts)
+      Pipelines.call(pipeline, event, opts)
     else
       {:error, error} ->
         {:error, error}
     end
   end
 
-  # def call for list -> groupes by type and calls in tasks
+  @spec call(list(map())) :: list(map() | {:error, any()}) | {:error, any()}
+  def call(events, opts) when is_list(events) do
+    events
+    |> Enum.group_by(&Map.get(&1, "type"))
+    |> Enum.map(fn {_type, events} ->
+      Task.async(fn -> call_many(events, opts) end)
+    end)
+    |> Enum.map(&Task.await(&1, :infinity))
+    |> List.flatten()
+  end
 
-  defp fetch_type(args) do
-    case Map.get(args, "type") do
+  defp call_many(events, opts) when is_list(events) do
+    event = List.first(events)
+
+    with {:ok, type} <- fetch_type(event),
+         {:ok, pipeline} <- get_route(type) do
+      Pipelines.call(pipeline, events, opts)
+    else
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  # def call for list -> groups by type and calls in tasks
+
+  defp fetch_type(event) do
+    case Map.get(event, "type") do
       nil ->
         {:error, :no_type}
 

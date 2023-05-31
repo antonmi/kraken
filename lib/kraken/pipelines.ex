@@ -141,7 +141,7 @@ defmodule Kraken.Pipelines do
             apply(module, :call, [event, opts])
 
           events when is_list(events) ->
-            Enum.to_list(apply(module, :stream, [events]))
+            Enum.to_list(apply(module, :stream, [events, opts]))
         end
     end
   rescue
@@ -181,7 +181,7 @@ defmodule Kraken.Pipelines do
   def stream(pipeline_name, args, opts \\ %{})
       when is_list(args)
       when is_binary(pipeline_name) and (is_map(args) or is_list(args)) do
-    opts = [return_ips: fetch_boolean_arg(opts, "return_ips")]
+    opts = [return_ip: fetch_boolean_arg(opts, "return_ip")]
 
     case status(pipeline_name) do
       :undefined ->

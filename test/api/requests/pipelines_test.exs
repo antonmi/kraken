@@ -334,12 +334,12 @@ defmodule Kraken.Api.Requests.PipelinesTest do
       assert conn.resp_body == "{\"x\":1,\"y\":2,\"z\":3}{\"x\":3,\"y\":4,\"z\":7}"
     end
 
-    test "success with return_ips=true" do
+    test "success with return_ip=true" do
       list = [%{"x" => 1, "y" => 2}, %{"x" => 3, "y" => 4}]
 
       conn =
         :post
-        |> conn("/pipelines/stream/the-pipeline?return_ips=true", Jason.encode!(list))
+        |> conn("/pipelines/stream/the-pipeline?return_ip=true", Jason.encode!(list))
         |> Router.call(%{})
 
       assert conn.resp_body =~ "event\":{\"x\":1,\"y\":2,\"z\":3}"
