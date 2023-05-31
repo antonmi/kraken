@@ -1,7 +1,7 @@
 defmodule Kraken.Api.Router do
   use Plug.Router
 
-  alias Kraken.Api.{Pipelines, Services}
+  alias Kraken.Api.{Pipelines, Routes, Services}
   alias Kraken.Utils
 
   plug(Plug.Logger, log: :debug)
@@ -211,6 +211,30 @@ defmodule Kraken.Api.Router do
               {:halt, conn}
           end
         end)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  # routes
+
+  post "/routes/define" do
+    {:ok, body, conn} = read_body(conn)
+
+    case Routes.define(body) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  get "/routes" do
+    case Routes.all() do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
 
       {:error, response} ->
         send_resp(conn, 400, response)
