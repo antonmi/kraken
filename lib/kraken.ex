@@ -49,7 +49,7 @@ defmodule Kraken do
         end
       end)
 
-    run_streams(streams, pid)
+    run_streams(streams, self())
     build_output_stream(length(streams))
   end
 
