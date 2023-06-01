@@ -129,10 +129,10 @@ defmodule KrakenTest do
     end
 
     test "when no type in event" do
-      events = [%{"x" => 1, "y" => 2} | @events]
+      events = [%{"x" => 1, "y" => 2}, %{"x" => 1, "y" => 2}] ++ @events
       results = Kraken.call(events)
-      assert length(results) == 5
-      assert Enum.member?(results, {:error, :no_type})
+      assert length(results) == 6
+      assert Enum.count(results, &(&1 == {:error, :no_type})) == 2
     end
 
     test "when no route for the type" do
@@ -145,8 +145,8 @@ defmodule KrakenTest do
     test "when pipeline is not ready" do
       Pipelines.stop("the-pipeline")
       results = Kraken.call(@events)
-      assert length(results) == 3
-      assert Enum.member?(results, {:error, :not_ready})
+      assert length(results) == 4
+      assert Enum.count(results, &(&1 == {:error, :not_ready})) == 2
     end
 
     test "when service is stopped" do
@@ -205,10 +205,10 @@ defmodule KrakenTest do
     end
 
     test "when no type in event" do
-      events = [%{"x" => 1, "y" => 2} | @events]
+      events = [%{"x" => 1, "y" => 2}, %{"x" => 1, "y" => 2}] ++ @events
       results = Kraken.cast(events)
-      assert length(results) == 5
-      assert Enum.member?(results, {:error, :no_type})
+      assert length(results) == 6
+      assert Enum.count(results, &(&1 == {:error, :no_type})) == 2
     end
 
     test "when no route for the type" do
@@ -221,14 +221,100 @@ defmodule KrakenTest do
     test "when pipeline is not ready" do
       Pipelines.stop("the-pipeline")
       results = Kraken.cast(@events)
-      assert length(results) == 3
-      assert Enum.member?(results, {:error, :not_ready})
+      assert length(results) == 4
+      assert Enum.count(results, &(&1 == {:error, :not_ready})) == 2
     end
 
     test "when service is stopped it still returns a list of references" do
       Octopus.stop("simple-math")
       results = Kraken.cast(@events)
       Enum.all?(results, &is_reference(&1))
+    end
+  end
+
+  describe "stream" do
+    @more_events [
+      %{"type" => "one-more-event", "x" => 1, "y" => 2},
+      %{"type" => "the-event", "x" => 1, "y" => 2},
+      %{"type" => "the-event", "x" => 3, "y" => 4},
+      %{"type" => "another-event", "x" => 1, "y" => 2},
+      %{"type" => "another-event", "x" => 3, "y" => 4},
+      %{"type" => "another-event", "x" => 5, "y" => 6}
+    ]
+
+    @one_more_pipeline %{
+      "name" => "one-more-pipeline",
+      "components" => [@component]
+    }
+
+    setup do
+      {:ok, "another-pipeline"} = Pipelines.define(@another_pipeline)
+      {:ok, "one-more-pipeline"} = Pipelines.define(@one_more_pipeline)
+      {:ok, _module} = Pipelines.start("another-pipeline")
+      {:ok, _module} = Pipelines.start("one-more-pipeline")
+
+      on_exit(fn ->
+        Pipelines.delete("another-pipeline")
+        Pipelines.delete("one-more-pipeline")
+      end)
+
+      :ok = Kraken.Routes.delete()
+
+      routes =
+        @routes
+        |> Map.put("another-event", "another-pipeline")
+        |> Map.put("one-more-event", "one-more-pipeline")
+
+      {:ok, _module} = Kraken.Routes.define(routes)
+      :ok
+    end
+
+    test "success" do
+      stream = Kraken.stream(@more_events)
+      assert is_function(stream)
+      results = Enum.to_list(stream)
+
+      assert Enum.member?(results, %{"type" => "another-event", "x" => 1, "y" => 2, "z" => 3})
+      assert Enum.member?(results, %{"type" => "another-event", "x" => 3, "y" => 4, "z" => 7})
+      assert Enum.member?(results, %{"type" => "another-event", "x" => 5, "y" => 6, "z" => 11})
+      assert Enum.member?(results, %{"type" => "the-event", "x" => 1, "y" => 2, "z" => 3})
+      assert Enum.member?(results, %{"type" => "the-event", "x" => 3, "y" => 4, "z" => 7})
+      assert Enum.member?(results, %{"type" => "one-more-event", "x" => 1, "y" => 2, "z" => 3})
+    end
+
+    test "success with return_ip=true" do
+      stream = Kraken.stream(@more_events, %{"return_ip" => true})
+      assert is_function(stream)
+      results = Enum.map(stream, & &1.event)
+
+      assert Enum.member?(results, %{"type" => "another-event", "x" => 1, "y" => 2, "z" => 3})
+      assert Enum.member?(results, %{"type" => "another-event", "x" => 3, "y" => 4, "z" => 7})
+      assert Enum.member?(results, %{"type" => "another-event", "x" => 5, "y" => 6, "z" => 11})
+      assert Enum.member?(results, %{"type" => "the-event", "x" => 1, "y" => 2, "z" => 3})
+      assert Enum.member?(results, %{"type" => "the-event", "x" => 3, "y" => 4, "z" => 7})
+      assert Enum.member?(results, %{"type" => "one-more-event", "x" => 1, "y" => 2, "z" => 3})
+    end
+
+    test "when no type in event" do
+      events = [%{"x" => 1, "y" => 2}, %{"x" => 1, "y" => 2}] ++ @events
+      results = Enum.to_list(Kraken.stream(events))
+
+      assert length(results) == 6
+      assert Enum.count(results, &(&1 == {:error, :no_type})) == 2
+    end
+
+    test "when no route for the type" do
+      events = [%{"type" => "unknown", "x" => 1, "y" => 2} | @events]
+      results = Enum.to_list(Kraken.stream(events))
+      assert length(results) == 5
+      assert Enum.member?(results, {:error, :no_route_for_type})
+    end
+
+    test "when pipeline is not ready" do
+      Pipelines.stop("the-pipeline")
+      results = Enum.to_list(Kraken.stream(@events))
+      assert length(results) == 4
+      assert Enum.count(results, &(&1 == {:error, :not_ready})) == 2
     end
   end
 end

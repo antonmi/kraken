@@ -5,12 +5,9 @@ defmodule Kraken do
 
   @spec call(map()) :: map() | {:error, any()}
   def call(event, opts) when is_map(event) do
-    with {:ok, type} <- fetch_type(event),
-         {:ok, pipeline} <- get_route(type) do
-      Pipelines.call(pipeline, event, opts)
-    else
-      {:error, error} ->
-        {:error, error}
+    case pipeline_ready_for_event(event) do
+      {:ok, pipeline} -> Pipelines.call(pipeline, event, opts)
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -23,10 +20,10 @@ defmodule Kraken do
 
   @spec cast(map(), map()) :: reference() | list(reference()) | {:error, any()}
   def cast(event, opts) when is_map(event) do
-    with {:ok, type} <- fetch_type(event),
-         {:ok, pipeline} <- get_route(type) do
-      Pipelines.cast(pipeline, event, opts)
-    else
+    case pipeline_ready_for_event(event) do
+      {:ok, pipeline} ->
+        Pipelines.cast(pipeline, event, opts)
+
       {:error, error} ->
         {:error, error}
     end
@@ -37,26 +34,83 @@ defmodule Kraken do
     cast_or_call_for_list(:cast, events, opts)
   end
 
-  defp cast_or_call_for_list(action, events, opts) do
-    events
-    |> Enum.group_by(&Map.get(&1, "type"))
-    |> Enum.map(fn {_type, events} ->
-      Task.async(fn -> call_or_cast_many(action, events, opts) end)
-    end)
-    |> Enum.map(&Task.await(&1, :infinity))
-    |> List.flatten()
+  @spec stream(list(map()), map()) :: Enumerable.t() | {:error, any()}
+  def stream(events, opts \\ %{}) when is_list(events) do
+    streams =
+      events
+      |> Enum.group_by(&Map.get(&1, "type"))
+      |> Enum.map(fn {_type, events} ->
+        case pipeline_ready_for_event(hd(events)) do
+          {:ok, pipeline} ->
+            do_call_pipeline(pipeline, :stream, events, opts)
+
+          {:error, error} ->
+            Stream.map(events, fn _event -> {:error, error} end)
+        end
+      end)
+
+    run_streams(streams, pid)
+    build_output_stream(length(streams))
   end
 
-  defp call_or_cast_many(action, events, opts) when is_list(events) do
-    event = List.first(events)
-
+  defp pipeline_ready_for_event(event) do
     with {:ok, type} <- fetch_type(event),
-         {:ok, pipeline} <- get_route(type) do
-      apply(Pipelines, action, [pipeline, events, opts])
+         {:ok, pipeline} <- get_route(type),
+         :ready <- Pipelines.ready?(pipeline) do
+      {:ok, pipeline}
     else
       {:error, error} ->
         {:error, error}
     end
+  end
+
+  defp cast_or_call_for_list(action, events, opts) do
+    events
+    |> Enum.group_by(&Map.get(&1, "type"))
+    |> Enum.map(fn {_type, events} ->
+      case pipeline_ready_for_event(hd(events)) do
+        {:ok, pipeline} ->
+          {:task, Task.async(fn -> do_call_pipeline(pipeline, action, events, opts) end)}
+
+        {:error, error} ->
+          Enum.map(events, fn _event -> {:error, error} end)
+      end
+    end)
+    |> Enum.map(fn
+      {:task, task} -> Task.await(task, :infinity)
+      errors -> errors
+    end)
+    |> List.flatten()
+  end
+
+  defp do_call_pipeline(pipeline, action, events, opts) when is_list(events) do
+    apply(Pipelines, action, [pipeline, events, opts])
+  end
+
+  defp run_streams(streams, pid) do
+    Enum.each(streams, fn stream ->
+      Task.async(fn ->
+        Enum.each(stream, &send(pid, {:event, &1}))
+        send(pid, :done)
+      end)
+    end)
+  end
+
+  defp build_output_stream(streams_count) do
+    Stream.resource(
+      fn -> streams_count end,
+      fn left ->
+        if left > 0 do
+          receive do
+            {:event, event} -> {[event], left}
+            :done -> {[], left - 1}
+          end
+        else
+          {:halt, 0}
+        end
+      end,
+      fn 0 -> :ok end
+    )
   end
 
   defp fetch_type(event) do

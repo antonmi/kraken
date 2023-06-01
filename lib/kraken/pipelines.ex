@@ -199,6 +199,19 @@ defmodule Kraken.Pipelines do
       {:error, error}
   end
 
+  def ready?(pipeline_name) do
+    case status(pipeline_name) do
+      :undefined ->
+        {:error, :undefined}
+
+      :not_ready ->
+        {:error, :not_ready}
+
+      :ready ->
+        :ready
+    end
+  end
+
   defp fetch_boolean_arg(args, arg) do
     case Map.get(args, arg) do
       true -> true
