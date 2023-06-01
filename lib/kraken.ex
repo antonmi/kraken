@@ -102,14 +102,17 @@ defmodule Kraken do
       fn left ->
         if left > 0 do
           receive do
-            {:event, event} -> {[event], left}
-            :done -> {[], left - 1}
+            {:event, event} ->
+              {[event], left}
+
+            :done ->
+              {[], left - 1}
           end
         else
           {:halt, 0}
         end
       end,
-      fn 0 -> :ok end
+      fn _ -> :ok end
     )
   end
 

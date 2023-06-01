@@ -1,7 +1,7 @@
 defmodule Kraken.Api.Router do
   use Plug.Router
 
-  alias Kraken.Api.{Pipelines, Routes, Services}
+  alias Kraken.Api.{KrakenApi, Pipelines, Routes, Services}
   alias Kraken.Utils
 
   plug(Plug.Logger, log: :debug)
@@ -16,8 +16,7 @@ defmodule Kraken.Api.Router do
     send_resp(conn, 200, "sorry, no icon")
   end
 
-  # services
-
+  # Services
   post "/services/define" do
     {:ok, body, conn} = read_body(conn)
 
@@ -101,8 +100,7 @@ defmodule Kraken.Api.Router do
     end
   end
 
-  # pipelines
-
+  # Pipelines
   post "/pipelines/define" do
     {:ok, body, conn} = read_body(conn)
 
@@ -217,8 +215,7 @@ defmodule Kraken.Api.Router do
     end
   end
 
-  # routes
-
+  # Routes
   post "/routes/define" do
     {:ok, body, conn} = read_body(conn)
 
@@ -235,6 +232,61 @@ defmodule Kraken.Api.Router do
     case Routes.all() do
       {:ok, response} ->
         send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  # KrakenApi
+  post "/call" do
+    {:ok, body, conn} = read_body(conn)
+    conn = fetch_query_params(conn)
+
+    case KrakenApi.call(conn.params, body) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/cast" do
+    {:ok, body, conn} = read_body(conn)
+    conn = fetch_query_params(conn)
+
+    case KrakenApi.cast(conn.params, body) do
+      {:ok, response} ->
+        send_resp(conn, 200, response)
+
+      {:error, response} ->
+        send_resp(conn, 400, response)
+    end
+  end
+
+  post "/stream" do
+    {:ok, body, conn} = read_body(conn)
+    conn = fetch_query_params(conn)
+
+    case KrakenApi.stream(conn.params, body) do
+      {:ok, stream} ->
+        conn = send_chunked(conn, 200)
+
+        Enum.reduce_while(stream, conn, fn event, conn ->
+          chunk =
+            event
+            |> Utils.struct_to_map()
+            |> Jason.encode!()
+
+          case Plug.Conn.chunk(conn, chunk) do
+            {:ok, conn} ->
+              {:cont, conn}
+
+            {:error, :closed} ->
+              {:halt, conn}
+          end
+        end)
 
       {:error, response} ->
         send_resp(conn, 400, response)
