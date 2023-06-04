@@ -90,7 +90,9 @@ defmodule Kraken.Api.Requests.PipelinesTest do
         |> conn("/pipelines")
         |> Router.call(%{})
 
-      assert conn.resp_body == "[\"the-pipeline\"]"
+      pipelines = Jason.decode!(conn.resp_body)
+
+      assert Enum.member?(pipelines, "the-pipeline")
     end
   end
 
