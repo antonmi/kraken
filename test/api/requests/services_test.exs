@@ -41,6 +41,12 @@ defmodule Kraken.Api.Requests.ServicesTest do
   describe "define several services" do
     @another_definition Map.put(@definition, "name", "the-same-simple-math")
 
+    setup do
+      on_exit(fn ->
+        Services.delete("the-same-simple-math")
+      end)
+    end
+
     test "success" do
       definitions = [@definition, @another_definition]
 
@@ -62,6 +68,26 @@ defmodule Kraken.Api.Requests.ServicesTest do
         |> Router.call(%{})
 
       assert String.contains?(conn.resp_body, "Missing service name!")
+    end
+  end
+
+  describe "services" do
+    setup do
+      Services.define(@definition)
+      Services.define(Map.put(@definition, "name", "another"))
+
+      on_exit(fn ->
+        Services.delete("another")
+      end)
+    end
+
+    test "list of defined services" do
+      conn =
+        :get
+        |> conn("/services")
+        |> Router.call(%{})
+
+      assert conn.resp_body == "[\"another\",\"simple-math\"]"
     end
   end
 

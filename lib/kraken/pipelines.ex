@@ -58,6 +58,16 @@ defmodule Kraken.Pipelines do
     end
   end
 
+  @spec pipelines :: list(String.t())
+  def pipelines do
+    :code.all_loaded()
+    |> Enum.map(&Atom.to_string(elem(&1, 0)))
+    |> Enum.filter(&String.starts_with?(&1, "Elixir.#{Configs.pipelines_namespace()}."))
+    |> Enum.map(&String.to_existing_atom/1)
+    |> Enum.filter(&Keyword.has_key?(&1.__info__(:functions), :kraken_pipeline_module?))
+    |> Enum.map(&apply(&1, :name, []))
+  end
+
   @spec start(String.t(), map()) :: {:ok, map()} | {:error, any}
   def start(pipeline_name, args \\ %{}) when is_binary(pipeline_name) and is_map(args) do
     opts = [

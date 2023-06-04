@@ -16,7 +16,7 @@ defmodule Kraken.Api.Routes do
       {:ok, routes} ->
         {:ok, Jason.encode!(routes)}
 
-      {:error, error} ->
+      {:error, :no_routes} ->
         {:error, Jason.encode!(%{"error" => "Routes are not defined!"})}
     end
   end

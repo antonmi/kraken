@@ -53,6 +53,23 @@ defmodule Kraken.PipelinesTest do
     end
   end
 
+  describe "pipelines" do
+    setup do
+      {:ok, "the-pipeline"} = Pipelines.define(@definition)
+      {:ok, "another"} = Pipelines.define(Map.put(@definition, "name", "another"))
+
+      on_exit(fn ->
+        Pipelines.delete("another")
+      end)
+    end
+
+    test "list of defined pipelines" do
+      defined_pipelines = Pipelines.pipelines()
+      assert Enum.member?(defined_pipelines, "the-pipeline")
+      assert Enum.member?(defined_pipelines, "another")
+    end
+  end
+
   describe "start" do
     test "success case" do
       {:ok, "the-pipeline"} = Pipelines.define(@definition)

@@ -14,6 +14,7 @@ defmodule Kraken.Define.Pipeline do
 
     template()
     |> EEx.eval_string(
+      name: name,
       definition: definition,
       pipeline_module: pipeline_module,
       components: components
@@ -38,7 +39,10 @@ defmodule Kraken.Define.Pipeline do
                     |> Base.decode64!()
                     |> :erlang.binary_to_term()
 
-        def test, do: :ok
+        def kraken_pipeline_module?, do: true
+
+        def name, do: "<%= name %>"
+
         def definition, do: @definition
       end
     """

@@ -78,6 +78,22 @@ defmodule Kraken.Api.Requests.PipelinesTest do
     end
   end
 
+  describe "pipelines" do
+    setup do
+      Pipelines.define(@definition)
+      :ok
+    end
+
+    test "returns list of defined pipelines" do
+      conn =
+        :get
+        |> conn("/pipelines")
+        |> Router.call(%{})
+
+      assert conn.resp_body == "[\"the-pipeline\"]"
+    end
+  end
+
   describe "status" do
     test "undefined" do
       conn =

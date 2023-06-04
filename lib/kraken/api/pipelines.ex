@@ -12,6 +12,11 @@ defmodule Kraken.Api.Pipelines do
     end
   end
 
+  def pipelines() do
+    pipelines = Pipelines.pipelines()
+    {:ok, Jason.encode!(pipelines)}
+  end
+
   def status(pipeline_name) do
     status = Pipelines.status(pipeline_name)
     {:ok, Jason.encode!(%{"status" => inspect(status)})}

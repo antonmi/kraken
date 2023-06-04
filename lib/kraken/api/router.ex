@@ -29,6 +29,11 @@ defmodule Kraken.Api.Router do
     end
   end
 
+  get "/services" do
+    {:ok, response} = Services.services()
+    send_resp(conn, 200, response)
+  end
+
   post "/services/start/:name" do
     {:ok, body, conn} = read_body(conn)
 
@@ -111,6 +116,11 @@ defmodule Kraken.Api.Router do
       {:error, response} ->
         send_resp(conn, 400, response)
     end
+  end
+
+  get "/pipelines" do
+    {:ok, response} = Pipelines.pipelines()
+    send_resp(conn, 200, response)
   end
 
   get "/pipelines/status/:name" do

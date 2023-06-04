@@ -18,6 +18,11 @@ defmodule Kraken.Api.Services do
     end
   end
 
+  def services() do
+    services = Services.services()
+    {:ok, Jason.encode!(services)}
+  end
+
   def status(service_name) do
     status = Services.status(service_name)
     {:ok, Jason.encode!(%{"status" => inspect(status)})}
