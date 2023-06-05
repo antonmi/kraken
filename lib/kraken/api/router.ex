@@ -1,7 +1,7 @@
 defmodule Kraken.Api.Router do
   use Plug.Router
 
-  alias Kraken.Api.{KrakenApi, Pipelines, Routes, Services}
+  alias Kraken.Api.{Events, Pipelines, Routes, Services}
   alias Kraken.Utils
 
   plug(Plug.Logger, log: :debug)
@@ -248,12 +248,12 @@ defmodule Kraken.Api.Router do
     end
   end
 
-  # KrakenApi
+  # Events
   post "/call" do
     {:ok, body, conn} = read_body(conn)
     conn = fetch_query_params(conn)
 
-    case KrakenApi.call(conn.params, body) do
+    case Events.call(conn.params, body) do
       {:ok, response} ->
         send_resp(conn, 200, response)
 
@@ -266,7 +266,7 @@ defmodule Kraken.Api.Router do
     {:ok, body, conn} = read_body(conn)
     conn = fetch_query_params(conn)
 
-    case KrakenApi.cast(conn.params, body) do
+    case Events.cast(conn.params, body) do
       {:ok, response} ->
         send_resp(conn, 200, response)
 
@@ -279,7 +279,7 @@ defmodule Kraken.Api.Router do
     {:ok, body, conn} = read_body(conn)
     conn = fetch_query_params(conn)
 
-    case KrakenApi.stream(conn.params, body) do
+    case Events.stream(conn.params, body) do
       {:ok, stream} ->
         conn = send_chunked(conn, 200)
 

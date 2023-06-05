@@ -1,4 +1,4 @@
-defmodule Kraken.Api.KrakenApi do
+defmodule Kraken.Api.Events do
   alias Kraken.Utils
 
   def call(opts, payload) do

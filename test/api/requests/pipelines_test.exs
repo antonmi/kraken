@@ -142,6 +142,8 @@ defmodule Kraken.Api.Requests.PipelinesTest do
         |> conn("/pipelines/definition/the-pipeline")
         |> Router.call(%{})
 
+      IO.puts(conn.resp_body)
+
       assert conn.resp_body == Jason.encode!(@definition)
     end
 

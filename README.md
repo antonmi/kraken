@@ -66,3 +66,44 @@ pipelines of components (based on the Elixir [GenStage](https://hexdocs.pm/gen_s
 Therefore, it's important to have a basic understanding of the idea behind these two libraries
 
 ### ALF - Application Layer Framework
+
+
+
+### API
+See [router.ex](lib/kraken/api/router.ex)
+#### Services
+```text
+POST /services/define
+GET /services
+GET /services/status/:name
+GET /services/definition/:name
+GET /services/state/:name  
+POST /services/start/:name
+POST /services/stop/:name 
+POST /services/delete/:name 
+POST /services/call/:name/:function 
+```
+#### Pipelines
+```text
+POST /pipelines/define 
+GET /pipelines 
+GET /pipelines/status/:name 
+GET /pipelines/definition/:name
+POST /pipelines/start/:name
+POST /pipelines/stop/:name 
+POST /pipelines/delete/:name 
+POST /pipelines/call/:name 
+POST /pipelines/cast/:name 
+POST /pipelines/stream/:name 
+```
+#### Routes
+```text
+POST /routes/define
+GET /routes
+```
+#### Events
+```text
+POST /call
+POST /cast
+POST /stream
+```
