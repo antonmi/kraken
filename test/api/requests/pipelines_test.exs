@@ -10,7 +10,6 @@ defmodule Kraken.Api.Requests.PipelinesTest do
     define_and_start_service("simple-math")
 
     on_exit(fn ->
-      Octopus.stop("simple-math")
       Octopus.delete("simple-math")
       Pipelines.delete("the-pipeline")
     end)
@@ -141,8 +140,6 @@ defmodule Kraken.Api.Requests.PipelinesTest do
         :get
         |> conn("/pipelines/definition/the-pipeline")
         |> Router.call(%{})
-
-      IO.puts(conn.resp_body)
 
       assert conn.resp_body == Jason.encode!(@definition)
     end

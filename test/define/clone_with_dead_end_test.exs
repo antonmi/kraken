@@ -9,7 +9,6 @@ defmodule Kraken.Define.CloneWithDeadEndTest do
       define_and_start_service("simple-math")
 
       on_exit(fn ->
-        Octopus.stop("simple-math")
         Octopus.delete("simple-math")
       end)
     end

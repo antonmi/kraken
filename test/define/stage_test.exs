@@ -7,7 +7,6 @@ defmodule Kraken.Define.StageTest do
     define_and_start_service("simple-math")
 
     on_exit(fn ->
-      Octopus.stop("simple-math")
       Octopus.delete("simple-math")
     end)
   end

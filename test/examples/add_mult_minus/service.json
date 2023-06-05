@@ -1,0 +1,45 @@
+{
+  "name": "add-mult-minus",
+  "client": {
+    "module": "octopus.elixir-module-client",
+    "start": {
+      "code": [
+        "defmodule AddMultMinus do",
+
+        "def add_one(%{\"event\" => event}) do",
+        "%{\"event\" => event + 1}",
+        "end",
+
+        "def mult_by_two(%{\"event\" => event}) do",
+        "%{\"event\" => event * 2}",
+        "end",
+
+        "def minus_three(%{\"event\" => event}) do",
+        "%{\"event\" => event - 3}",
+        "end",
+
+        "end"
+      ]
+    }
+  },
+  "interface": {
+    "add_one": {
+      "call": {
+        "module": "AddMultMinus",
+        "function": "add_one"
+      }
+    },
+    "mult_by_two": {
+      "call": {
+        "module": "AddMultMinus",
+        "function": "mult_by_two"
+      }
+    },
+    "minus_three": {
+      "call": {
+        "module": "AddMultMinus",
+        "function": "minus_three"
+      }
+    }
+  }
+}

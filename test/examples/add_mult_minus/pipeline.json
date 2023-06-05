@@ -1,0 +1,20 @@
+{
+  "name": "add-mult-minus-pipeline",
+  "components": [
+    {
+      "type": "stage",
+      "service": {"name": "add-mult-minus", "function": "add_one"},
+      "transform": {"event":  "args['event']"}
+    },
+    {
+      "type": "stage",
+      "service": {"name": "add-mult-minus", "function": "mult_by_two"},
+      "transform": {"event":  "args['event']"}
+    },
+    {
+      "type": "stage",
+      "service": {"name": "add-mult-minus", "function": "minus_three"},
+      "transform": {"event":  "args['event']"}
+    }
+  ]
+}

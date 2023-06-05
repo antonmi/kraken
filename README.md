@@ -66,7 +66,23 @@ pipelines of components (based on the Elixir [GenStage](https://hexdocs.pm/gen_s
 Therefore, it's important to have a basic understanding of the idea behind these two libraries
 
 ### ALF - Application Layer Framework
+See [ALF Readme](https://github.com/antonmi/ALF)
 
+Medium articles:
+- [ALF — Flow-based Application Layer Framework](https://anton-mishchuk.medium.com/alf-flow-based-application-layer-framework-8072ae9b0b6b)
+- [Where is Application Layer](https://medium.com/p/6c65a459543a)
+
+CodeBEAM talk: 
+- [Flow-Based Programming with Elixir and ALF](https://www.youtube.com/watch?v=2XrYd1W5GLo)
+
+### Octopus
+See [Octopus Readme](https://github.com/antonmi/octopus)
+
+The project introduces the declarative JSON DSL for defining clients to other services.
+
+Kraken uses Octopus for defining services.
+
+Kraken uses the same "prepare" -> "call" -> "transform" approach for defining the "stage" component logic.
 
 
 ### API

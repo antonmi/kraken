@@ -32,7 +32,6 @@ defmodule KrakenTest do
     {:ok, _module} = Kraken.Routes.define(@routes)
 
     on_exit(fn ->
-      Octopus.stop("simple-math")
       Octopus.delete("simple-math")
       Pipelines.delete("the-pipeline")
       Kraken.Routes.delete()

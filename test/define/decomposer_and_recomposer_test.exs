@@ -8,7 +8,6 @@ defmodule Kraken.Define.DecomposerAndRecomposerTest do
     define_and_start_service("decompose-recompose")
 
     on_exit(fn ->
-      Octopus.stop("decompose-recompose")
       Octopus.delete("decompose-recompose")
     end)
   end
