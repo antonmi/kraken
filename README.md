@@ -1,35 +1,37 @@
 # Kraken
 
+<img src="images/krakenchen.jpeg" width=200px>
+
 **Flow-based Service Orchestration Framework**
 
-Kraken is a general framework for orchestration of software systems.
+Kraken is a general framework for the orchestration of software systems.
 
-It suggests the flow-based programming approach for  organizing the interaction between the parts of the system (specific services).
-It means that every interaction with the system is presented a “input event” - the data-structure that contains all the necessary information about the interaction.
-The event then go through a predefined chain of “components” (“pipelines”), the components calls underlying services and modify the event.
+It suggests the flow-based programming approach for organizing the interaction between the parts of the system (specific services).
+It means that every interaction with the system is presented as an “input event” - the data structure that contains all the necessary information about the interaction.
+The event then goes through a predefined chain of “components” (“pipelines”), the components call underlying services and modify the event.
 The final state of the event represents the result of the interaction.
 
 Kraken provides a simple declarative DSL, basically JSON for the pipeline definitions as well as for the definitions of the “clients” to underlying services.
 
 When thinking about layered architecture (infrastructure, domain, application, and interface layer), Kraken is like Kubernetes for the application layer of the system.
-While K8s provides a declarative approach for defining infrastructure layer (the one below the domain layer), the Kraken does the same for the application layer of the system (orchestration layer).
+While K8s provides a declarative approach for defining the infrastructure layer (the one below the domain layer), Kraken does the same for the application layer of the system (orchestration layer).
 
-In terms of the building blocks for the pipelines, Kraken has the same set of components that the [ALF framework](https://github.com/antonmi/ALF). 
+In terms of the building blocks for the pipelines, Kraken has the same set of components as the [ALF framework](https://github.com/antonmi/ALF). 
 
-Kraken depends on ALF and under the hood the JSON-DSL definitions are being compiled to the ALF pipelines modules. Read the [ALF Readme](https://github.com/antonmi/ALF/blob/main/README.md) to understand how it works on Elixir level.
+Kraken depends on ALF and under the hood the JSON-DSL definitions are being compiled into the ALF pipelines modules. Read the [ALF Readme](https://github.com/antonmi/ALF/blob/main/README.md) to understand how it works on the Elixir level.
 
-In terms of “clients”, Kraken uses the [Octopus](https://github.com/antonmi/octopus) library, which uses the simple “prepare-call-transform” approach for communication with the external services. See the Octopus Readme for more details.
+In terms of “clients”, Kraken uses the [Octopus](https://github.com/antonmi/octopus) library, which uses the simple “prepare-call-transform” approach for communication with external services. See the Octopus Readme for more details.
 
 ## Simple example to get the idea
-Imagine, the part of your system is a GitHub Service accessible via JSON API.
+The GitHub service accessible via JSON API will be used for the artificial example.
 
-One of the flow in the system returns a chain of follower for the given search query.
+The pipeline has to return a chain of followers for the given search query.
 - Input: search “query” and “limit”.
 - First, return the information about the first found user.
 - Then get followers of the user.
-- Select the follower whose username is closest the current username (Levenshtein distance).
+- Select the follower whose username is closest to the current username (Levenshtein distance).
 - Return the information about the “closest” follower.
-- Set the current username to the “closest” follower, and repeat from the “get followers step”.
+- Set the current username to the “closest” follower, and repeat from the “get followers" step.
 - Return not more than “limit” results.
 
 For example, for query="antonmi", and limit=5, the chain of the usernames might be:
@@ -114,8 +116,8 @@ One may see a bit of Elixir code here. Only simple "access" functions are availa
 Also, it is possible to define custom helpers for more complex data extraction.
 See the [Octopus](https://github.com/antonmi/octopus) page and code.
 
-There will be also one lambda-like service for calculation the Levenshtein distance.
-Octopus (and Kraken) allows to define a service from an Elixir module.
+There will be also one lambda-like service for the calculation of the Levenshtein distance.
+Octopus (and Kraken) allows one to define a service from an Elixir module.
 Here is the JSON definition:
 ```json
 {
@@ -151,9 +153,9 @@ Here is the JSON definition:
 }
 ```
 One can see the "code" in the definition.
-There is no "prepare" and "transform" steps, since the "closest" function already accept the JSON-like Elixir map, and return the similar data-structure. 
+There are no "prepare" and "transform" steps, since the "closest" function already accepts the JSON-like Elixir map, and returns a similar data structure. 
 
-Also, there are "input" and "output" in the interface definition. These are optional steps for data-validations.
+Also, there are "input" and "output" in the interface definition. These are optional steps for data validations.
 Octopus uses the [ex_json_schema](https://github.com/jonasschmidt/ex_json_schema) library for optional validations of input and output.
 
 That's it. After submitting these definitions to the Kraken-based agent, and starting the services, 
@@ -271,7 +273,7 @@ For example the "get-user" component:
 It first gets 'username' from the event, then call the "get_user" function on the "github" service, 
 and finally updates the event puts the event by setting 'user_data'. 
 
-There are also stages that just "transforms" the event - "inc-counter" and "reassign-vars".
+There are also stages that just "transform" the event - "inc-counter" and "reassign-vars".
 
 After posting the definition to the Kraken agent, magic happens, and the ALF pipeline appears in the agent code. 
 ```text
@@ -287,9 +289,9 @@ to stream the output events
 ```
 
 ## More realistic cases
-Let's say you have an online-shop system.
+Let's say you have an online shop system.
 
-There might be "user-service", "products-service", "billing-service", and "notification-service" service.
+There might be "user-service", "products-service", "billing-service", and "notification-service" services.
 
 There might be a dozen of "flows", or "business-flow", or "user-flows", or "use-cases", that are "pipelines" in Kraken (ALF) terminology:
 - User registration
@@ -302,7 +304,7 @@ Each service is deployed to the system and exposes its API.
 
 Now, the job of the "application engineer" is to design and build these flows in the system.
 
-For each "use-case" one should: 
+For each "use-case", one should: 
 - define the "services" - uniform mapping to the underlying services API.
 - define the "event" that represents the interaction (and its result).
 - define the "pipeline" - a chain of components that will transform the event accordingly to the business logic.
@@ -347,30 +349,30 @@ After all the transformations, the output would be like:
 }
 ```
 
-After the definition are ready, one can simply push them to the Kraken-based agent that is deployed to the system.
+After the definitions are ready, one can simply push them to the Kraken-based agent that is deployed to the system.
 
 It's just a new instance (pod) in the system that will coordinate all the underlying services.
 
 ## Philosophy. Or why is it cool?
 ### Flow-based programming
-The approach is actually applies the great engineering idea of assembly line.
-An initial workpiece is placed at the conveyor goes through a several processing stages until it becomes a ready-to-use product.
+The approach applies the great engineering idea of an assembly line.
+An initial workpiece is placed on the conveyor and goes through several processing stages until it becomes a ready-to-use product.
 
-This flow-based programming is a case of the general "event-driven" approach, where business-logic is triggerred by data.
+This flow-based programming is a case of the general "event-driven" approach, where business logic is triggered by data.
 The main distinction are:
 - The topology of the "flow" is defined explicitly.    
 - A single event represents the result of the interaction with the particular use-case in the software system.
 
 This provides extraordinary observability and there understandability of the defined logic:
 - One can simply see and read "pipelines" (both in code and diagrams).
-- One can "sit" on an event and easily track it changes when passing through components in a pipeline.
-- One can "sit" on a component and observe transformation of different events passing through it.
+- One can "sit" on an event and easily track its changes when passing through components in a pipeline.
+- One can "sit" on a component and observe transformations of different events passing through it.
 
-### Elixir GenStages, scaling and monitoring
+### Elixir GenStages, scaling, and monitoring
 Under the hood, the ALF runs all components' code inside Elixir GenServers. It means that all the components work in parallel. 
-When one pushes the stream of events to the pipeline, one component works with n-th event, the previous one work on (n-1)-th.
+When one pushes the stream of events to the pipeline, one component works with an n-th event, and the previous one work on (n-1)-th.
 
-Also, ALF (and therefore Kraken) allows to create a several copies of a component, which adds additional (and configurable) horizontal parallelism.
+Also, ALF (and therefore Kraken) allows having several copies of a component, which adds additional (and configurable) horizontal parallelism.
 
 ALF uses the Elixir/Erlang [telemetry](https://github.com/beam-telemetry/telemetry) library, so it's easy to track the event transformation on each step.
 
@@ -379,36 +381,35 @@ See the [ALF-monitor](https://github.com/antonmi/alf_monitor) project and video 
 ### Declarative JSON DSL
 What can be simpler than JSON?
 
-Kraken uses it for services and pipelines definitions, and events are also just JSON-objects.
+Kraken uses it for services and pipelines definitions, and events are also just JSON objects.
 
-So, Kraken provides a very simple DLS for modelling the whole application (orchestration) layer for a software system.
+So, Kraken provides a very simple DLS for modeling the whole application (orchestration) layer for a software system.
 
 Moreover, services definitions can be considered as a specification for the underlying service:
 - services "names" and "interface functions" (together with input/output specifications) define a "language" for communicating with underlying domain services.
-- the "specifications" can (even must) be used by the engineers that works with domain-level services.
+- the "specifications" can (even must) be used by the engineers that work with domain-level services.
 
-The pipelines definitions are comprehensible data structures that are consistent with visual representations of the flows defined using ALF diagrams.
+The pipeline definitions are comprehensible data structures that are consistent with visual representations of the flows defined using ALF diagrams.
 
 The "design-, code-, and runtime-uniformity" buzz-phrase can be used for describing the advantages of the approach:
-- when one design a "pipeline", he/she thinks in terms of chain of components, and draws it on a paper using the diagram language.
-- when one code the pipeline, he/she basically codes the same structure as was on the paper.
+- when one designs a "pipeline", he/she thinks in terms of a chain of components and draws it on paper using the diagram language.
+- when one codes the pipeline, he/she codes the same structure as was on the paper.
 - and finally, when the program runs, it passes events throw the same chain of components.
 
 ### Kraken-agent
-One can for sure compile all the definition in a build time and then upload the "orchestrator" into the system.
+One can for sure compile all the definitions in a build time and then upload the "orchestrator" into the system.
 
-However, I see more advantages when code is uploaded dynamically. So, first one uploads "an empty" Kraken-based orchestrator, then uploads all the definitions and starts the pipelines.
+However, I see more advantages when the code is uploaded dynamically. So, first one uploads "an empty" Kraken-based orchestrator, then uploads all the definitions and starts the pipelines.
 
 It is similar to the Kubernetes approach to creating an infrastructure layer of the system.
 
-The code then reside separately from the "orchestrator" and can be uploaded using a "client", something like `kraken apply .` (similar to `kubectl apply .`).
+The code then resides separately from the "orchestrator" and can be uploaded using a "client", something like `kraken apply .` (similar to `kubectl apply .`).
 
-It will allow to dynamically add new services and pipelines (or new versions of them).
+It will allow one to dynamically add new services and pipelines (or new versions of them).
 
 It also opens huge opportunities for developing (prototyping) pipelines on existing systems (better its development-purpose copies).
 
 And also an IDE-like client can be implemented, providing a low-code platform for the orchestration layer.  
-
 
 
 ## More technical details are below
