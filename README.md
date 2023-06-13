@@ -173,7 +173,7 @@ POST /services/call/levenshtein/closest {"name": "anton", "names": ["bread", "ba
 
 ### Pipeline definition
 The ALF flow diagram for the solution might be:
-![Solution](Github-solution.png "Solution")
+![Solution](images/github-solution.png "Solution")
 
 The pipeline definition is:
 ```json
@@ -319,7 +319,9 @@ For example, for the "User orders products", the "event" representing the intera
 ```
 
 The corresponding pipeline (simplified):
-<img src="images/online-shop.png" width=400px>
+
+<img src="images/online-shop.png" width=500px>
+
 ```json
 {
   "name": "user-orders-a-product",
