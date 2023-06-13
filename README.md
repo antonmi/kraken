@@ -1,6 +1,6 @@
 # Kraken
 
-<img src="images/krakenchen.jpeg" width=200px>
+<img src="images/krakenchen.jpeg" alt="Happy Kraken" width=200px>
 
 **Flow-based Service Orchestration Framework**
 
@@ -21,6 +21,10 @@ In terms of the building blocks for the pipelines, Kraken has the same set of co
 Kraken depends on ALF and under the hood the JSON-DSL definitions are being compiled into the ALF pipelines modules. Read the [ALF Readme](https://github.com/antonmi/ALF/blob/main/README.md) to understand how it works on the Elixir level.
 
 In terms of “clients”, Kraken uses the [Octopus](https://github.com/antonmi/octopus) library, which uses the simple “prepare-call-transform” approach for communication with external services. See the Octopus Readme for more details.
+
+## Something to read and watch
+
+[Kraken Flow-based Service Orchestration Framework](https://www.youtube.com/watch?v=-m5iO6YBlCk) - Talk at Elixir Berlin Meetup, June 8, 2023.
 
 ## Simple example to get the idea
 The GitHub service accessible via JSON API will be used for the artificial example.
@@ -320,7 +324,7 @@ For example, for the "User orders products", the "event" representing the intera
 
 The corresponding pipeline (simplified):
 
-<img src="images/online-shop.png" width=500px>
+<img src="images/online-shop.png" alt="user-orders-a-product pipeline" width=500px>
 
 ```json
 {
@@ -370,7 +374,7 @@ The main distinction are:
 - The topology of the "flow" is defined explicitly.    
 - A single event represents the result of the interaction with the particular use-case in the software system.
 
-This provides extraordinary observability and there understandability of the defined logic:
+This provides extraordinary observability and therefore understandability of the defined logic:
 - One can simply see and read "pipelines" (both in code and diagrams).
 - One can "sit" on an event and easily track its changes when passing through components in a pipeline.
 - One can "sit" on a component and observe transformations of different events passing through it.
