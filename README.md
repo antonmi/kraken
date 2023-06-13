@@ -11,7 +11,7 @@ It means that every interaction with the system is presented as an “input even
 The event then goes through a predefined chain of “components” (“pipelines”), the components call underlying services and modify the event.
 The final state of the event represents the result of the interaction.
 
-Kraken provides a simple declarative DSL, basically JSON for the pipeline definitions as well as for the definitions of the “clients” to underlying services.
+Kraken provides a simple declarative JSON DSL for the pipeline definitions as well as for the definitions of the “clients” to underlying services.
 
 When thinking about layered architecture (infrastructure, domain, application, and interface layer), Kraken is like Kubernetes for the application layer of the system.
 While K8s provides a declarative approach for defining the infrastructure layer (the one below the domain layer), Kraken does the same for the application layer of the system (orchestration layer).
@@ -319,25 +319,30 @@ For example, for the "User orders products", the "event" representing the intera
 ```
 
 The corresponding pipeline (simplified):
+<img src="images/online-shop.png" width=400px>
 ```json
-[
-  {
-      "name": "find-user",
-      "service": {"name": "user-service", "function": "find"}
-  },
-  {
-      "name": "find-product",
-      "service": {"name": "product-service", "function": "find"}
-  },
-  {
-      "name": "bill-user",
-      "service": {"name": "billing-service", "function": "bill"}
-  },
-  {
-      "name": "notify-user",
-      "service": {"name": "notification-service", "function": "bill"}
-  }
-]
+{
+  "name": "user-orders-a-product",
+  "components": 
+    [
+      {
+          "name": "find-user",
+          "service": {"name": "user-service", "function": "find"}
+      },
+      {
+          "name": "find-product",
+          "service": {"name": "product-service", "function": "find"}
+      },
+      {
+          "name": "bill-user",
+          "service": {"name": "billing-service", "function": "bill"}
+      },
+      {
+          "name": "notify-user",
+          "service": {"name": "notification-service", "function": "send-email"}
+      }
+    ]
+}
 ```
 So, the event goes through four components, each component calls underlying services.
 After all the transformations, the output would be like:
