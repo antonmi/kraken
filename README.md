@@ -2,7 +2,7 @@
 
 <img src="images/krakenchen.jpeg" alt="Happy Kraken" width=200px>
 
-**Flow-based Service Orchestration Framework**
+**Flow-based System Orchestration Framework**
 
 Kraken is a general framework for the orchestration of software systems.
 
@@ -374,10 +374,10 @@ The main distinction are:
 - The topology of the "flow" is defined explicitly.    
 - A single event represents the result of the interaction with the particular use-case in the software system.
 
-This provides extraordinary observability and therefore understandability of the defined logic:
-- One can simply see and read "pipelines" (both in code and diagrams).
+This provides extraordinary observability and, therefore, understandability of the defined logic:
+- One can easily read "pipelines" (both in code and diagrams).
 - One can "sit" on an event and easily track its changes when passing through components in a pipeline.
-- One can "sit" on a component and observe transformations of different events passing through it.
+- One can "sit" on a component and observe transformations of different events passing through.
 
 ### Elixir GenStages, scaling, and monitoring
 Under the hood, the ALF runs all components' code inside Elixir GenServers. It means that all the components work in parallel. 
