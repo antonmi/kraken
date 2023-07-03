@@ -1,6 +1,6 @@
 # Kraken
 
-<img src="images/kraken-logo.jpeg" alt="Happy Kraken" width=200px>
+<img src="images/kraken-logo.jpeg" alt="Happy Kraken" width=500px>
 
 **Flow-based System Orchestration Framework**
 
