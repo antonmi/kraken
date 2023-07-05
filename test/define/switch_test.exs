@@ -119,6 +119,33 @@ defmodule Kraken.Define.SwitchTest do
     end
   end
 
+  describe "error in condition" do
+    @components_with_error_in_condition [
+      %{
+        "type" => "switch",
+        "name" => "my-switch",
+        "prepare" => %{
+          "number" => "args['sum']"
+        },
+        "branches" => %{"branch1" => []},
+        "condition" => "ifffff args['number'] <= 3, do: \"branch1\", else: \"branch2\""
+      }
+    ]
+
+    @pipeline_with_error_in_condition %{
+      "name" => "SwitchPipelineWithError",
+      "components" => @components_with_error_in_condition
+    }
+
+    test "define and call pipeline" do
+      Pipeline.define(@pipeline_with_error_in_condition)
+      apply(Kraken.Pipelines.SwitchPipelineWithError, :start, [])
+
+      result = apply(Kraken.Pipelines.SwitchPipelineWithError, :call, [%{"sum" => 1}])
+      assert %ALF.ErrorIP{error: %SyntaxError{}} = result
+    end
+  end
+
   describe "simple pipeline with switch and helpers" do
     @components_with_helpers [
       @add,

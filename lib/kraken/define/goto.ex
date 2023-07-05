@@ -58,13 +58,7 @@ defmodule Kraken.Define.Goto do
           condition: condition,
           helpers: helpers
         }) do
-      case Utils.eval_string(condition, args: event, helpers: helpers) do
-        {:ok, result} ->
-          result
-
-        {:error, error} ->
-          raise error
-      end
+      Utils.eval_string(condition, args: event, helpers: helpers)
     end
   end
 end

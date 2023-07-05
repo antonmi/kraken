@@ -56,6 +56,34 @@ defmodule Kraken.Define.GotoTest do
     end
   end
 
+  describe "error in goto" do
+    @components_with_error_in_condition [
+      %{
+        "type" => "goto-point",
+        "name" => "my-goto-point"
+      },
+      %{
+        "type" => "goto",
+        "name" => "my-goto",
+        "to" => "my-goto-point",
+        "condition" => "args['x'] <= qwerty"
+      }
+    ]
+
+    @pipeline_with_error_in_condition %{
+      "name" => "GotoPipelineWithError",
+      "components" => @components_with_error_in_condition
+    }
+
+    test "define and call pipeline" do
+      Pipeline.define(@pipeline_with_error_in_condition)
+      apply(Kraken.Pipelines.GotoPipelineWithError, :start, [])
+
+      result = apply(Kraken.Pipelines.GotoPipelineWithError, :call, [%{"x" => 1}])
+      assert %ALF.ErrorIP{error: %SyntaxError{}} = result
+    end
+  end
+
   describe "pipeline with goto and helpers" do
     test "simple-math service" do
       assert {:ok, %{"sum" => 3}} = Octopus.call("simple-math", "add", %{"a" => 1, "b" => 2})

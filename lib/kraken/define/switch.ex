@@ -2,7 +2,7 @@ defmodule Kraken.Define.Switch do
   alias Kraken.Utils
 
   def define(definition, switch_module, pipeline_helpers \\ []) do
-    Map.get(definition, "branches") || raise "Missing branches"
+    if Enum.count(Map.get(definition, "branches", %{})) == 0, do: raise("Missing branches")
     prepare = Map.get(definition, "prepare", false)
     condition = Map.get(definition, "condition") || raise "Missing condition"
     helpers = Utils.helper_modules(definition) ++ pipeline_helpers
@@ -70,10 +70,10 @@ defmodule Kraken.Define.Switch do
           condition: condition,
           helpers: helpers
         }) do
-      with {:ok, args} <- Transform.transform(event, prepare, helpers),
-           {:ok, branch} <- Utils.eval_string(condition, args: args, helpers: helpers) do
-        branch
-      else
+      case Transform.transform(event, prepare, helpers) do
+        {:ok, args} ->
+          Utils.eval_string(condition, args: args, helpers: helpers)
+
         {:error, error} ->
           {:error, error}
       end
