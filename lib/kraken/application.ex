@@ -9,6 +9,8 @@ defmodule Kraken.Application do
       {Plug.Cowboy, scheme: :http, plug: Kraken.Api.Router, options: [port: port()]}
     ]
 
+    :ok = Kraken.ProjectStart.run()
+
     opts = [strategy: :one_for_one, name: Kraken.Supervisor]
     Supervisor.start_link(children, opts)
   end

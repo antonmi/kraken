@@ -80,7 +80,7 @@ defmodule Kraken.Define.GotoTest do
       apply(Kraken.Pipelines.GotoPipelineWithError, :start, [])
 
       result = apply(Kraken.Pipelines.GotoPipelineWithError, :call, [%{"x" => 1}])
-      assert %ALF.ErrorIP{error: %SyntaxError{}} = result
+      assert %ALF.ErrorIP{error: %CompileError{}} = result
     end
   end
 

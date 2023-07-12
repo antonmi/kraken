@@ -1,5 +1,14 @@
 defmodule Kraken.Configs do
-  @pipelines_namespace "Kraken.Pipelines"
+  def pipelines_namespace do
+    case Application.get_env(:kraken, :pipelines_namespace) do
+      nil ->
+        "Kraken.Pipelines"
 
-  def pipelines_namespace, do: @pipelines_namespace
+      namespace when is_atom(namespace) ->
+        String.replace("#{namespace}", "Elixir.", "")
+
+      namespace when is_binary(namespace) ->
+        namespace
+    end
+  end
 end

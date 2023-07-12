@@ -1,0 +1,12 @@
+{
+  "name": "hello",
+  "components": [
+    {
+      "type": "stage",
+      "name": "greeter",
+      "service": {"name": "greeter", "function": "hello"},
+      "prepare": {"name":  "args['name']"},
+      "transform": {"message": "args['message']"}
+    }
+  ]
+}

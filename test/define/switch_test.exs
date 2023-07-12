@@ -142,7 +142,7 @@ defmodule Kraken.Define.SwitchTest do
       apply(Kraken.Pipelines.SwitchPipelineWithError, :start, [])
 
       result = apply(Kraken.Pipelines.SwitchPipelineWithError, :call, [%{"sum" => 1}])
-      assert %ALF.ErrorIP{error: %SyntaxError{}} = result
+      assert %ALF.ErrorIP{error: %CompileError{}} = result
     end
   end
 

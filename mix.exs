@@ -16,6 +16,17 @@ defmodule Kraken.MixProject do
 
   def application do
     [
+      env: [
+        pipelines_namespace: Kraken.Pipelines,
+        project_start: [
+          kraken_folder: "lib/kraken",
+          define_services: true,
+          start_services: true,
+          define_pipelines: true,
+          start_pipelines: true,
+          define_routes: true
+        ]
+      ],
       extra_applications: [:logger],
       mod: {Kraken.Application, []}
     ]
@@ -37,7 +48,7 @@ defmodule Kraken.MixProject do
   defp deps do
     [
       {:alf, "0.8.5"},
-      {:octopus, "0.5.0"},
+      {:octopus, "0.5.1"},
       {:plug_cowboy, "~> 2.5"},
       {:ex_doc, "~> 0.29", only: :dev, runtime: false}
     ]

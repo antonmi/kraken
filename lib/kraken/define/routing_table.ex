@@ -1,6 +1,7 @@
 defmodule Kraken.Define.RoutingTable do
   alias Kraken.Utils
 
+  @spec define(map()) :: {:ok, Kraken.RoutingTable}
   def define(routes) when is_map(routes) do
     template()
     |> EEx.eval_string(

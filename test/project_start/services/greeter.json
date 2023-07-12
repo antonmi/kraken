@@ -1,0 +1,32 @@
+{
+  "name": "greeter",
+  "client": {
+    "module": "octopus.lambda",
+    "start": {
+      "code": [
+        "defmodule Greeter do",
+
+        "def hello(%{\"name\" => name}) do",
+        "%{\"message\" => \"Hello, #{name}\"}",
+        "end",
+
+        "end"
+      ]
+    }
+  },
+  "interface": {
+    "hello": {
+      "input": {
+        "name": {"type": "string"},
+        "required": ["name"]
+      },
+      "call": {
+        "module": "Greeter",
+        "function": "hello"
+      },
+      "output": {
+        "message": {"type": "string"}
+      }
+    }
+  }
+}
