@@ -1,0 +1,26 @@
+{
+  "name": "kv-store",
+  "client": {
+    "module": "<%= main_module %>.Kraken.Clients.KVStore"
+  },
+  "interface": {
+    "set": {
+      "input": {"required": ["key", "value"]},
+      "prepare": {
+        "operation": "set", "key": "args['key']", "value": "args['value']"
+      },
+      "call": {},
+      "transform": {"ok": "args"},
+      "output": {"ok": {}}
+    },
+    "get": {
+      "input": {"required": ["key"]},
+      "prepare": {
+        "operation": "get", "key": "args['key']"
+      },
+      "call": {},
+      "transform": {"value": "args"},
+      "output": {"value": {}}
+    }
+  }
+}

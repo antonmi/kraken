@@ -1,0 +1,19 @@
+{
+  "name": "greeter",
+  "client": {
+    "module": "Octopus.Lambda",
+    "start": {"module": "<%= main_module %>.Kraken.Lambdas.Greeter"}
+  },
+  "interface": {
+    "greet": {
+      "input": {"required": ["name"]},
+      "call": {"function": "greet"},
+      "output": {"message": {}}
+    },
+    "no_greet": {
+      "input": {"required": ["name"]},
+      "call": {"function": "no_greet"},
+      "output": {"message": {}}
+    }
+  }
+}

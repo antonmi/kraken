@@ -1,0 +1,43 @@
+{
+  "name": "hello",
+  "components": [
+    {
+      "type": "stage",
+      "name": "check-store",
+      "service": {"name": "kv-store", "function": "get"},
+      "prepare": {"key":  "args['name']"},
+      "transform": {"greeted": "args"}
+    },
+    {
+      "type": "switch",
+      "helpers": ["<%= main_module %>.Kraken.Helpers.YesNoBranch"],
+      "condition": "yes_or_no(args, ['greeted', 'value'])",
+      "branches": {
+        "yes": [
+          {
+            "type": "stage",
+            "name": "no-greetings",
+            "service": {"name": "greeter", "function": "no_greet"},
+            "prepare": {"name":  "args['name']"},
+            "transform": {"message":  "args['message']"}
+          }
+        ],
+        "no": [
+          {
+            "type": "stage",
+            "name": "do-greet",
+            "service": {"name": "greeter", "function": "greet"},
+            "prepare": {"name":  "args['name']"},
+            "transform": {"message":  "args['message']"}
+          },
+          {
+            "type": "stage",
+            "name": "save-to-store",
+            "service": {"name": "kv-store", "function": "set"},
+            "prepare": {"key":  "args['name']", "value": true}
+          }
+        ]
+      }
+    }
+  ]
+}
