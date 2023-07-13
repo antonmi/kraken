@@ -1,6 +1,8 @@
 # Kraken
 
-<img src="images/kraken-logo.jpeg" alt="Happy Kraken" width=500px>
+<img src="images/kraken-logo.jpeg" 
+alt="Happy Kraken" 
+width=500px>
 
 **Flow-based System Orchestration Framework**
 
@@ -35,7 +37,9 @@ The task also create a couple of tests in the "test/kraken" folder.
 
 The "hello" pipeline produces ether "Hello, #{name}!" or "I've already said hello to you, #{name}." messages.
 
-<img src="images/hello-pipeline.png" alt="Happy Kraken" width=500px>
+<img src="images/hello-pipeline.png" 
+alt="Happy Kraken" 
+width=500px>
 If you put:
 
 ```elixir
@@ -351,7 +355,9 @@ For example, for the "User orders products", the "event" representing the intera
 
 The corresponding pipeline (simplified):
 
-<img src="images/online-shop.png" alt="user-orders-a-product pipeline" width=500px>
+<img src="images/online-shop.png" 
+alt="user-orders-a-product pipeline" 
+width=500px>
 
 ```json
 {
@@ -448,6 +454,46 @@ It will allow one to dynamically add new services and pipelines (or new versions
 It also opens huge opportunities for developing (prototyping) pipelines on existing systems (better its development-purpose copies).
 
 And also an IDE-like client can be implemented, providing a low-code platform for the orchestration layer.  
+
+### Kraken client
+There are mix tasks for interaction with the application
+#### Services
+```text
+mix kraken.services
+mix kraken.services define :definition
+mix kraken.services status :name
+mix kraken.services definition :name
+mix kraken.services state :name  
+mix kraken.services start :name
+mix kraken.services stop :name 
+mix kraken.services delete :name 
+mix kraken.services call :name :function :event  
+```
+#### Pipelines
+```text
+mix kraken.pipelines
+mix kraken.pipelines define :definition
+mix kraken.pipelines status :name 
+mix kraken.pipelines definition :name
+mix kraken.pipelines start :name
+mix kraken.pipelines stop :name 
+mix kraken.pipelines delete :name 
+mix kraken.pipelines call :name :event(s)
+mix kraken.pipelines cast :name :event(s)
+mix kraken.pipelines stream :name :events
+```
+#### Routes
+```text
+mix kraken.routes
+mix kraken.routes define :definition
+```
+#### Events
+```text
+mix kraken call :event(s)
+mix kraken cast :event(s)
+mix kraken stream :event(s)
+```
+
 
 
 ## More technical details are below

@@ -11,4 +11,24 @@ defmodule Kraken.Configs do
         namespace
     end
   end
+
+  def host do
+    case Application.get_env(:kraken, :host) do
+      nil ->
+        "localhost"
+
+      host when is_binary(host) ->
+        host
+    end
+  end
+
+  def port do
+    case Application.get_env(:kraken, :port) do
+      nil ->
+        String.to_integer(System.get_env("KRAKEN_PORT") || "4001")
+
+      port when is_integer(port) ->
+        port
+    end
+  end
 end
