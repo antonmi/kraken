@@ -46,7 +46,8 @@ If you put:
 config :kraken,
        project_start: true
 ```
-to the `config/dev.exs` file, the JSON definitions will be compiled when project starts, so you can run the pipeline in the "iex" console.
+to the `config/dev.exs` file, the JSON definitions will be compiled when project starts.
+So you can run the pipeline in the "iex" console.
 ```elixir
 iex(1)> Kraken.call(%{"type" => "hello", "name" => "Anton"})
 %{
@@ -54,6 +55,18 @@ iex(1)> Kraken.call(%{"type" => "hello", "name" => "Anton"})
   "message" => "Hello, Anton!",
   "name" => "Anton",
   "type" => "hello"
+}
+```
+Or using kraken client (mix tasks, see below):
+```shell
+➜ kraken call '{"type": "hello", "name": "Anton"}'
+{
+  "greeted": {
+    "value": null
+  },
+  "message": "Hello, Anton!",
+  "name": "Anton",
+  "type": "hello"
 }
 ```
 
