@@ -26,6 +26,33 @@ In terms of “clients”, Kraken uses the [Octopus](https://github.com/antonmi/
 
 [Kraken Flow-based Service Orchestration Framework](https://www.youtube.com/watch?v=-m5iO6YBlCk) - Talk at Elixir Berlin Meetup, June 8, 2023.
 
+## Quick start
+Add "kraken" to your Elixir project.
+
+Run `mix kraken.init`. It creates the "kraken folder" in your project with a couple of services, the "hello" pipeline, the "kv_store" client, simple helper, lambda and routes.
+It gives you a good scaffold for creating your own functionality.
+The task also create a couple of tests in the "test/kraken" folder.
+
+The "hello" pipeline produces ether "Hello, #{name}!" or "I've already said hello to you, #{name}." messages.
+
+<img src="images/hello-pipeline.png" alt="Happy Kraken" width=500px>
+If you put:
+
+```elixir
+config :kraken,
+       project_start: true
+```
+to the `config/dev.exs` file, the JSON definitions will be compiled when project starts, so you can run the pipeline in the "iex" console.
+```elixir
+iex(1)> Kraken.call(%{"type" => "hello", "name" => "Anton"})
+%{
+  "greeted" => %{"value" => nil},
+  "message" => "Hello, Anton!",
+  "name" => "Anton",
+  "type" => "hello"
+}
+```
+
 ## Simple example to get the idea
 The GitHub service accessible via JSON API will be used for the artificial example.
 
