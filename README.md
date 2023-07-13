@@ -456,7 +456,7 @@ It also opens huge opportunities for developing (prototyping) pipelines on exist
 And also an IDE-like client can be implemented, providing a low-code platform for the orchestration layer.  
 
 ### Kraken client
-There are mix tasks for interaction with the application
+There are mix tasks for interaction with the application:
 #### Services
 ```text
 mix kraken.services
