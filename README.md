@@ -41,7 +41,7 @@ The "hello" pipeline produces ether "Hello, #{name}!" or "I've already said hell
 alt="Happy Kraken" 
 width=500px>
 
-If you put:
+If you put
 
 ```elixir
 config :kraken,
@@ -71,8 +71,11 @@ Or using kraken client (mix tasks, see below):
 }
 ```
 
-## Simple example to get the idea
-The GitHub service accessible via JSON API will be used for the artificial example.
+Check the generated examples and tests to get the basics!
+
+## More complex example of interaction with APIs 
+
+The GitHub service accessible via JSON API is used for the artificial example.
 
 The pipeline has to return a chain of followers for the given search query.
 - Input: search “query” and “limit”.
