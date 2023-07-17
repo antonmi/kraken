@@ -40,6 +40,7 @@ The "hello" pipeline produces ether "Hello, #{name}!" or "I've already said hell
 <img src="images/hello-pipeline.png" 
 alt="Happy Kraken" 
 width=500px>
+
 If you put:
 
 ```elixir
