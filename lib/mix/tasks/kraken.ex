@@ -37,3 +37,33 @@ defmodule Mix.Tasks.Kraken do
     |> IO.puts()
   end
 end
+
+defmodule Mix.Tasks.Kraken.Call do
+  use Mix.Task
+
+  @shortdoc "Kraken call"
+
+  def run(payload) do
+    Mix.Tasks.Kraken.run(["call", payload])
+  end
+end
+
+defmodule Mix.Tasks.Kraken.Cast do
+  use Mix.Task
+
+  @shortdoc "Kraken cast"
+
+  def run(payload) do
+    Mix.Tasks.Kraken.run(["call", payload])
+  end
+end
+
+defmodule Mix.Tasks.Kraken.Stream do
+  use Mix.Task
+
+  @shortdoc "Kraken stream"
+
+  def run(payload) do
+    Mix.Tasks.Kraken.run(["stream", payload])
+  end
+end

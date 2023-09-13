@@ -59,8 +59,15 @@ iex(1)> Kraken.call(%{"type" => "hello", "name" => "Anton"})
 }
 ```
 Or using kraken client (mix tasks, see below):
+
+First, start the app:
 ```shell
-➜ kraken call '{"type": "hello", "name": "Anton"}'
+mix run --no-halt
+or
+iex -S mix
+```
+```shell
+➜ mix kraken call '{"type": "hello", "name": "Anton"}'
 {
   "greeted": {
     "value": null
@@ -70,6 +77,8 @@ Or using kraken client (mix tasks, see below):
   "type": "hello"
 }
 ```
+
+`mix kraken.call '{"type": "hello", "name": "Anton"}'` (with dot) will also work.
 
 Check the generated examples and tests to get the basics!
 
@@ -175,7 +184,7 @@ Here is the JSON definition:
 {
   "name": "levenshtein",
   "client": {
-    "module": "octopus.elixir-module-client",
+    "module": "octopus.lambda",
     "start": {
       "code": [
         "defmodule Distance do",
@@ -509,6 +518,10 @@ mix kraken.routes define :definition
 mix kraken call :event(s)
 mix kraken cast :event(s)
 mix kraken stream :event(s)
+# also works with dot
+mix kraken.call :event(s)
+mix kraken.cast :event(s)
+mix kraken.stream :event(s)
 ```
 
 
