@@ -11,13 +11,13 @@ defmodule Kraken.Define.GotoTest do
     end)
   end
 
-  describe "simple pipeline with goto" do
-    test "simple-math service" do
-      assert {:ok, %{"sum" => 3}} = Octopus.call("simple-math", "add", %{"a" => 1, "b" => 2})
-      assert {:ok, %{"result" => 10}} = Octopus.call("simple-math", "mult_by_two", %{"x" => 5})
-      assert {:ok, %{"result" => 6}} = Octopus.call("simple-math", "add_one", %{"x" => 5})
-    end
+  test "simple-math service" do
+    assert {:ok, %{"sum" => 3}} = Octopus.call("simple-math", "add", %{"a" => 1, "b" => 2})
+    assert {:ok, %{"result" => 10}} = Octopus.call("simple-math", "mult_by_two", %{"x" => 5})
+    assert {:ok, %{"result" => 6}} = Octopus.call("simple-math", "add_one", %{"x" => 5})
+  end
 
+  describe "simple pipeline with goto" do
     @components [
       %{
         "type" => "goto-point",
@@ -56,6 +56,32 @@ defmodule Kraken.Define.GotoTest do
     end
   end
 
+  describe "goto without condition (true by default)" do
+    @components [
+      %{
+        "type" => "goto",
+        "name" => "my-goto",
+        "to" => "my-goto-point"
+      },
+      %{
+        "type" => "goto-point",
+        "name" => "my-goto-point"
+      }
+    ]
+
+    @pipeline %{
+      "name" => "GotoTruePipeline",
+      "components" => @components
+    }
+
+    test "define and call pipeline" do
+      Pipeline.define(@pipeline)
+      apply(Kraken.Pipelines.GotoTruePipeline, :start, [])
+
+      assert apply(Kraken.Pipelines.GotoTruePipeline, :call, [%{"x" => 1}]) == %{"x" => 1}
+    end
+  end
+
   describe "error in goto" do
     @components_with_error_in_condition [
       %{
@@ -85,12 +111,6 @@ defmodule Kraken.Define.GotoTest do
   end
 
   describe "pipeline with goto and helpers" do
-    test "simple-math service" do
-      assert {:ok, %{"sum" => 3}} = Octopus.call("simple-math", "add", %{"a" => 1, "b" => 2})
-      assert {:ok, %{"result" => 10}} = Octopus.call("simple-math", "mult_by_two", %{"x" => 5})
-      assert {:ok, %{"result" => 6}} = Octopus.call("simple-math", "add_one", %{"x" => 5})
-    end
-
     @components_with_helpers [
       %{
         "type" => "goto-point",

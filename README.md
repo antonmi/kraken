@@ -531,17 +531,18 @@ mix kraken.stream :event(s)
 ### Components
 See [ALF components overview](https://github.com/antonmi/ALF#components-overview) for more details.
 
-| image                                                                           | type       | required                                     |
-|---------------------------------------------------------------------------------|------------|----------------------------------------------|
-| <img src="images/stage.png" width=100px>                                        | stage      | it can be empty or have only "transform" section |
-| <img src="images/switch.png" width=100px>                                       | switch     | "condition" - code, and "branches" - list of components | 
-| <img src="images/clone.png" width=100px>                                        | clone      | "to" - a list of components                  |
-| <img src="images/goto.png" width=100px>                                         | goto       | "to" - the name of the "goto-point", "condition": code |
-| <img src="images/goto-point.png" width=100px>                                   | goto-point | "name" - the "goto" refers to the name       |
-| <img src="images/dead-end.png" width=100px>                                     | dead-end   | nothing                                      |
-| <img src="images/decomposer.png" width=100px>                                   | decomposer | "service", "decompose" with "event" and "events" |
-| <img src="images/recomposer.png" width=100px>                                   | recomposer | "service", "decompose" with "event" and "events" |
-| <img src="images/plug.png" width=50px> <img src="images/unplug.png" width=50px> | plug       | "pipeline"                                    |
+| image                                                                           | type       | attributes                                                                 |
+|---------------------------------------------------------------------------------|------------|----------------------------------------------------------------------------|
+| <img src="images/stage.png" width=100px>                                        | stage      | it can be empty or have only "transform" section                           |
+| <img src="images/switch.png" width=100px>                                       | switch     | "condition" - code, and "branches" - list of components                    | 
+| <img src="images/clone.png" width=100px>                                        | clone      | "to" - a list of components                                                |
+| <img src="images/done.png" width=100px>                                         | done       | "condition" - code, "true" by default                                      |
+| <img src="images/goto.png" width=100px>                                         | goto       | "to" - the name of the "goto-point", "condition" - code, "true" by default |
+| <img src="images/goto-point.png" width=100px>                                   | goto-point | "name" - the "goto" refers to the name                                     |
+| <img src="images/dead-end.png" width=100px>                                     | dead-end   | nothing                                                                    |
+| <img src="images/decomposer.png" width=100px>                                   | decomposer | "service", "decompose" with "event" and "events"                           |
+| <img src="images/recomposer.png" width=100px>                                   | recomposer | "service", "decompose" with "event" and "events"                           |
+| <img src="images/plug.png" width=50px> <img src="images/unplug.png" width=50px> | plug       | "pipeline"                                                                 |
 
 
 ### API

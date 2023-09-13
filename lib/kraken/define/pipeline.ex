@@ -1,6 +1,6 @@
 defmodule Kraken.Define.Pipeline do
   alias Kraken.{Configs, Utils}
-  alias Kraken.Define.{Decomposer, Goto, Recomposer, Plug, Stage, Switch}
+  alias Kraken.Define.{Decomposer, Done, Goto, Recomposer, Plug, Stage, Switch}
   alias ALF.Components
 
   def define(definition) do
@@ -118,6 +118,16 @@ defmodule Kraken.Define.Pipeline do
               module: component_module,
               function: :call,
               to: Map.get(definition, "to") || raise("Missing 'to'"),
+              source_code: definition
+            }
+
+          "done" ->
+            {:ok, ^component_module} = Done.define(definition, component_module, helpers)
+
+            %Components.Done{
+              name: name,
+              module: component_module,
+              function: :call,
               source_code: definition
             }
 

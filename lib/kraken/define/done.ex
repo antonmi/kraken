@@ -1,26 +1,26 @@
-defmodule Kraken.Define.Goto do
+defmodule Kraken.Define.Done do
   alias Kraken.Utils
 
-  def define(definition, goto_module, pipeline_helpers \\ []) do
+  def define(definition, done_module, pipeline_helpers \\ []) do
     condition = Map.get(definition, "condition") || true
     helpers = Utils.helper_modules(definition) ++ pipeline_helpers
 
     template()
     |> EEx.eval_string(
-      goto_module: goto_module,
+      done_module: done_module,
       condition: condition,
       helpers: helpers
     )
     |> Utils.eval_code()
     |> case do
       {:ok, _code} ->
-        {:ok, goto_module}
+        {:ok, done_module}
     end
   end
 
   defp template() do
     """
-      defmodule <%= goto_module %> do
+      defmodule <%= done_module %> do
         @condition "<%= Base.encode64(:erlang.term_to_binary(condition)) %>"
                    |> Base.decode64!()
                    |> :erlang.binary_to_term()
@@ -30,12 +30,12 @@ defmodule Kraken.Define.Goto do
                  |> :erlang.binary_to_term()
 
         def call(event, _opts) when is_map(event) do
-          %Kraken.Define.Goto.Call{
+          %Kraken.Define.Done.Call{
             event: event,
             condition: @condition,
             helpers: @helpers
           }
-          |> Kraken.Define.Goto.Call.call()
+          |> Kraken.Define.Done.Call.call()
         end
 
         def call(_event, _opts) do
