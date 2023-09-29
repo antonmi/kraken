@@ -1,5 +1,7 @@
 # Kraken
 
+[![Hex.pm](https://img.shields.io/hexpm/v/kraken.svg?style=flat-square)](https://hex.pm/packages/kraken)
+
 <img src="images/kraken-logo.jpeg" 
 alt="Happy Kraken" 
 width=500px>
@@ -486,7 +488,8 @@ There are mix tasks for interaction with the application:
 #### Services
 ```text
 mix kraken.services
-mix kraken.services define :definition
+mix kraken.services define :definition | :file | :path
+
 mix kraken.services status :name
 mix kraken.services definition :name
 mix kraken.services state :name  
