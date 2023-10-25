@@ -42,10 +42,11 @@ defmodule Kraken.MixProject do
 
   defp deps do
     [
-      {:alf, "0.9.0"},
+      {:alf, "0.9.2"},
       {:octopus, "0.5.1"},
       {:plug_cowboy, "~> 2.5"},
       {:finch, "~> 0.16"},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.29", only: :dev, runtime: false}
     ]
   end

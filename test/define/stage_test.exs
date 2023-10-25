@@ -182,9 +182,9 @@ defmodule Kraken.Define.StageTest do
     test "the count" do
       Pipeline.define(@pipeline_with_count)
       apply(Kraken.Pipelines.PipelineWithCount, :start, [])
+      Process.sleep(10)
       components = apply(Kraken.Pipelines.PipelineWithCount, :components, [])
       assert length(components) == 5
-
       result = apply(Kraken.Pipelines.PipelineWithCount, :call, [%{"x" => 1, "y" => 2}])
       assert result == %{"x" => 1, "y" => 2, "z" => 3}
     end

@@ -77,6 +77,7 @@ defmodule Kraken.Define.GotoTest do
     test "define and call pipeline" do
       Pipeline.define(@pipeline)
       apply(Kraken.Pipelines.GotoTruePipeline, :start, [])
+      Process.sleep(10)
 
       assert apply(Kraken.Pipelines.GotoTruePipeline, :call, [%{"x" => 1}]) == %{"x" => 1}
     end
