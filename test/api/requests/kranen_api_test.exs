@@ -54,11 +54,11 @@ defmodule Kraken.Api.Requests.KrakenApiTest do
       assert conn.resp_body == "{\"type\":\"math\",\"x\":1,\"y\":2,\"z\":3}"
     end
 
-    test "success with return_ip true" do
+    test "success with debug true" do
       conn =
         :post
         |> conn(
-          "/pipelines/call/the-pipeline?return_ip=true",
+          "/pipelines/call/the-pipeline?debug=true",
           Jason.encode!(@event)
         )
         |> Router.call(%{})
@@ -165,12 +165,12 @@ defmodule Kraken.Api.Requests.KrakenApiTest do
                "{\"type\":\"math\",\"x\":1,\"y\":2,\"z\":3}{\"type\":\"math\",\"x\":3,\"y\":4,\"z\":7}"
     end
 
-    test "success with return_ip=true" do
+    test "success with debug=true" do
       events = [@event, %{"type" => "math", "x" => 3, "y" => 4}]
 
       conn =
         :post
-        |> conn("/stream?return_ip=true", Jason.encode!(events))
+        |> conn("/stream?debug=true", Jason.encode!(events))
         |> Router.call(%{})
 
       assert conn.resp_body =~ "event\":{\"type\":\"math\",\"x\":1,\"y\":2,\"z\":3}"

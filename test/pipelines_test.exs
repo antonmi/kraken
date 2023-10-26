@@ -167,12 +167,12 @@ defmodule Kraken.PipelinesTest do
              }
     end
 
-    test "success case with return_ip: true" do
+    test "success case with debug: true" do
       {:ok, "the-pipeline"} = Pipelines.define(@definition)
       {:ok, _module} = Pipelines.start("the-pipeline")
 
       assert %ALF.IP{} =
-               Pipelines.call("the_pipeline", %{"x" => 1, "y" => 2}, %{"return_ip" => true})
+               Pipelines.call("the_pipeline", %{"x" => 1, "y" => 2}, %{"debug" => true})
     end
 
     test "error in the pipeline, it returns error ip" do
@@ -277,12 +277,12 @@ defmodule Kraken.PipelinesTest do
              ]
     end
 
-    test "success case with return_ip: true" do
+    test "success case with debug: true" do
       {:ok, "the-pipeline"} = Pipelines.define(@definition)
       {:ok, _module} = Pipelines.start("the-pipeline")
 
       events = [%{"x" => 1, "y" => 2}, %{"x" => 3, "y" => 4}]
-      stream = Pipelines.stream("the_pipeline", events, %{"return_ip" => "true"})
+      stream = Pipelines.stream("the_pipeline", events, %{"debug" => "true"})
 
       assert [%ALF.IP{}, %ALF.IP{}] = Enum.to_list(stream)
     end

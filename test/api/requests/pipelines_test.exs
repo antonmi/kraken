@@ -174,7 +174,7 @@ defmodule Kraken.Api.Requests.PipelinesTest do
         :post
         |> conn(
           "/pipelines/start/the-pipeline",
-          Jason.encode!(%{"sync" => true, "telemetry_enabled" => true})
+          Jason.encode!(%{"sync" => true, "telemetry" => true})
         )
         |> Router.call(%{})
 
@@ -183,7 +183,7 @@ defmodule Kraken.Api.Requests.PipelinesTest do
       Kraken.Pipelines.ThePipeline
       |> apply(:components, [])
       |> Enum.each(fn component ->
-        assert component.telemetry_enabled
+        assert component.telemetry
         assert is_reference(component.pid)
       end)
     end
@@ -191,7 +191,7 @@ defmodule Kraken.Api.Requests.PipelinesTest do
     test "start with args as parameters" do
       conn =
         :post
-        |> conn("/pipelines/start/the-pipeline?sync=true&telemetry_enabled=true")
+        |> conn("/pipelines/start/the-pipeline?sync=true&telemetry=true")
         |> Router.call(%{})
 
       assert Jason.decode!(conn.resp_body) == %{"ok" => "Elixir.Kraken.Pipelines.ThePipeline"}
@@ -199,7 +199,7 @@ defmodule Kraken.Api.Requests.PipelinesTest do
       Kraken.Pipelines.ThePipeline
       |> apply(:components, [])
       |> Enum.each(fn component ->
-        assert component.telemetry_enabled
+        assert component.telemetry
         assert is_reference(component.pid)
       end)
     end
@@ -230,11 +230,11 @@ defmodule Kraken.Api.Requests.PipelinesTest do
       assert conn.resp_body == "{\"x\":1,\"y\":2,\"z\":3}"
     end
 
-    test "success with return_ip true" do
+    test "success with debug true" do
       conn =
         :post
         |> conn(
-          "/pipelines/call/the-pipeline?return_ip=true",
+          "/pipelines/call/the-pipeline?debug=true",
           Jason.encode!(%{"x" => 1, "y" => 2})
         )
         |> Router.call(%{})
@@ -351,12 +351,12 @@ defmodule Kraken.Api.Requests.PipelinesTest do
       assert conn.resp_body == "{\"x\":1,\"y\":2,\"z\":3}{\"x\":3,\"y\":4,\"z\":7}"
     end
 
-    test "success with return_ip=true" do
+    test "success with debug=true" do
       list = [%{"x" => 1, "y" => 2}, %{"x" => 3, "y" => 4}]
 
       conn =
         :post
-        |> conn("/pipelines/stream/the-pipeline?return_ip=true", Jason.encode!(list))
+        |> conn("/pipelines/stream/the-pipeline?debug=true", Jason.encode!(list))
         |> Router.call(%{})
 
       assert conn.resp_body =~ "event\":{\"x\":1,\"y\":2,\"z\":3}"

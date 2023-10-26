@@ -4,7 +4,7 @@ defmodule Kraken.MixProject do
   def project do
     [
       app: :kraken,
-      version: "0.3.2",
+      version: "0.3.3",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -42,7 +42,7 @@ defmodule Kraken.MixProject do
 
   defp deps do
     [
-      {:alf, "0.9.2"},
+      {:alf, "0.9.3"},
       {:octopus, "0.5.1"},
       {:plug_cowboy, "~> 2.5"},
       {:finch, "~> 0.16"},

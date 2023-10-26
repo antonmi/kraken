@@ -55,9 +55,9 @@ defmodule KrakenTest do
       assert Kraken.call(@event) == out
     end
 
-    test "success with return_ip option" do
+    test "success with debug option" do
       out = %{"type" => "the-event", "x" => 1, "y" => 2, "z" => 3}
-      assert %ALF.IP{event: ^out} = Kraken.call(@event, %{"return_ip" => true})
+      assert %ALF.IP{event: ^out} = Kraken.call(@event, %{"debug" => true})
     end
 
     test "when no type in event" do
@@ -115,10 +115,10 @@ defmodule KrakenTest do
       assert Enum.member?(results, %{"type" => "the-event", "x" => 3, "y" => 4, "z" => 7})
     end
 
-    test "success with return_ip=true" do
+    test "success with debug=true" do
       results =
         @events
-        |> Kraken.call(%{"return_ip" => true})
+        |> Kraken.call(%{"debug" => true})
         |> Enum.map(& &1.event)
 
       assert Enum.member?(results, %{"type" => "another-event", "x" => 1, "y" => 2, "z" => 3})
@@ -281,8 +281,8 @@ defmodule KrakenTest do
       assert Enum.member?(results, %{"type" => "one-more-event", "x" => 1, "y" => 2, "z" => 3})
     end
 
-    test "success with return_ip=true" do
-      stream = Kraken.stream(@more_events, %{"return_ip" => true})
+    test "success with debug=true" do
+      stream = Kraken.stream(@more_events, %{"debug" => true})
       assert is_function(stream)
       results = Enum.map(stream, & &1.event)
 

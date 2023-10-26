@@ -71,7 +71,7 @@ defmodule Kraken.Pipelines do
   @spec start(String.t(), map()) :: {:ok, map()} | {:error, any}
   def start(pipeline_name, args \\ %{}) when is_binary(pipeline_name) and is_map(args) do
     opts = [
-      telemetry_enabled: fetch_boolean_arg(args, "telemetry_enabled"),
+      telemetry: fetch_boolean_arg(args, "telemetry"),
       sync: fetch_boolean_arg(args, "sync")
     ]
 
@@ -134,7 +134,7 @@ defmodule Kraken.Pipelines do
   @spec call(String.t(), map(), map()) :: map() | list(map()) | {:error, any()}
   def call(pipeline_name, args, opts \\ %{})
       when is_binary(pipeline_name) and (is_map(args) or is_list(args)) do
-    opts = [return_ip: fetch_boolean_arg(opts, "return_ip")]
+    opts = [debug: fetch_boolean_arg(opts, "debug")]
 
     case status(pipeline_name) do
       :undefined ->
@@ -191,7 +191,7 @@ defmodule Kraken.Pipelines do
   def stream(pipeline_name, args, opts \\ %{})
       when is_list(args)
       when is_binary(pipeline_name) and (is_map(args) or is_list(args)) do
-    opts = [return_ip: fetch_boolean_arg(opts, "return_ip")]
+    opts = [debug: fetch_boolean_arg(opts, "debug")]
 
     case status(pipeline_name) do
       :undefined ->
