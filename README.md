@@ -29,6 +29,7 @@ In terms of “clients”, Kraken uses the [Octopus](https://github.com/antonmi/
 ## Something to read and watch
 
 [Kraken Flow-based Service Orchestration Framework](https://www.youtube.com/watch?v=-m5iO6YBlCk) - Talk at Elixir Berlin Meetup, June 8, 2023.
+
 [Kraken Flow-based Service Orchestration Framework](https://youtube.com/watch?v=9OLHkhHH5WE&list=PLvL2NEhYV4Ztkk8LyJ42hVBCjv6XRK5Ei&index=49) - Lightning Talk at CodeBEAM Europe, October 19, 2023.
 
 ## Quick start
