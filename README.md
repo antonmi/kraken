@@ -32,9 +32,9 @@ In terms of “clients”, Kraken uses the [Octopus](https://github.com/antonmi/
 
 [Kraken Flow-based Service Orchestration Framework](https://youtube.com/watch?v=9OLHkhHH5WE&list=PLvL2NEhYV4Ztkk8LyJ42hVBCjv6XRK5Ei&index=49) - Lightning Talk at CodeBEAM Europe, October 19, 2023.
 
-[Kraken Flow-based Service Orchestration Framework](https://betterprogramming.pub/kraken-flow-based-service-orchestration-framework-5f2af5ee3d59) - Medium article
+[Kraken Flow-based Service Orchestration Framework](https://betterprogramming.pub/kraken-flow-based-service-orchestration-framework-5f2af5ee3d59) - Medium article.
 
-[Declarative Interface Translation with Octopus](https://anton-mishchuk.medium.com/declarative-interface-translation-with-octopus-7bbf4e2329cf)
+[Declarative Interface Translation with Octopus](https://anton-mishchuk.medium.com/declarative-interface-translation-with-octopus-7bbf4e2329cf) - Medium article.
 
 ## Quick start
 Add "kraken" to your Elixir project.
