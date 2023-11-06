@@ -10,6 +10,7 @@ defmodule Kraken.Application do
       {Plug.Cowboy, scheme: :http, plug: Kraken.Api.Router, options: [port: Configs.port()]}
     ]
 
+    Code.put_compiler_option(:ignore_module_conflict, true)
     :ok = Kraken.ProjectStart.run()
 
     opts = [strategy: :one_for_one, name: Kraken.Supervisor]
