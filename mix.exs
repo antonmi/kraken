@@ -44,7 +44,7 @@ defmodule Kraken.MixProject do
     [
       {:alf, "0.9.3"},
       {:octopus, "0.5.1"},
-      {:plug_cowboy, "~> 2.5"},
+      {:plug_cowboy, "~> 2.6"},
       {:finch, "~> 0.16"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.29", only: :dev, runtime: false}
