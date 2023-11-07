@@ -32,29 +32,35 @@ defmodule Kraken.ProjectStartTest do
       end)
     end
 
-    test "hello pipeline" do
+    def project_start do
       :ok = ProjectStart.run()
+    end
+
+    test "hello pipeline" do
+      project_start()
       result = Kraken.call(%{"type" => "hello", "name" => "Anton"})
       assert result == %{"message" => "Hello, Anton", "name" => "Anton", "type" => "hello"}
     end
   end
 
   describe "when no start options" do
+    setup do: Routes.delete()
+
     test "do nothing with nil" do
       Application.put_env(:kraken, :project_start, nil)
-      :ok = ProjectStart.run()
+      project_start()
       assert {:error, :no_routes} = Kraken.call(%{"type" => "hello", "name" => "Anton"})
     end
 
     test "do nothing with false" do
       Application.put_env(:kraken, :project_start, false)
-      :ok = ProjectStart.run()
+      project_start()
       assert {:error, :no_routes} = Kraken.call(%{"type" => "hello", "name" => "Anton"})
     end
 
     test "do nothing with []" do
       Application.put_env(:kraken, :project_start, [])
-      :ok = ProjectStart.run()
+      project_start()
       assert {:error, :no_routes} = Kraken.call(%{"type" => "hello", "name" => "Anton"})
     end
   end

@@ -1,8 +1,8 @@
 defmodule Kraken.Define.CloneWithDeadEndTest do
   use ExUnit.Case
   import Kraken.TestHelpers
-  alias Kraken.Define.Pipeline
   import ExUnit.CaptureLog
+  alias Kraken.Define.Pipeline
 
   describe "simple pipeline with clone and dead-end" do
     setup do
