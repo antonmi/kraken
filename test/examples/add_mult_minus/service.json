@@ -1,7 +1,7 @@
 {
   "name": "add-mult-minus",
   "client": {
-    "module": "octopus.elixir-module-client",
+    "module": "octopus.lambda",
     "start": {
       "code": [
         "defmodule AddMultMinus do",
