@@ -1,6 +1,6 @@
 defmodule Kraken.Define.Pipeline do
   alias Kraken.{Configs, Utils}
-  alias Kraken.Define.{Decomposer, Done, Goto, Recomposer, Plug, Stage, Switch}
+  alias Kraken.Define.{Composer, Done, Goto, Plug, Stage, Switch}
   alias ALF.Components
 
   def define(definition) do
@@ -96,13 +96,13 @@ defmodule Kraken.Define.Pipeline do
               source_code: definition
             }
 
-          "clone" ->
-            Map.get(definition, "to") || raise "Missing 'to'"
-
-            %Components.Clone{
-              name: name,
-              to: build_components(definition["to"], pipeline_module, helpers)
-            }
+          #          "clone" ->
+          #            Map.get(definition, "to") || raise "Missing 'to'"
+          #
+          #            %Components.Clone{
+          #              name: name,
+          #              to: build_components(definition["to"], pipeline_module, helpers)
+          #            }
 
           "dead_end" ->
             %Components.DeadEnd{name: name}
@@ -131,24 +131,16 @@ defmodule Kraken.Define.Pipeline do
               source_code: definition
             }
 
-          "decomposer" ->
-            {:ok, ^component_module} = Decomposer.define(definition, component_module, helpers)
+          "composer" ->
+            {:ok, ^component_module} = Composer.define(definition, component_module, helpers)
 
-            %Components.Decomposer{
+            %Components.Composer{
               name: name,
               module: component_module,
               function: :call,
-              source_code: definition
-            }
-
-          "recomposer" ->
-            {:ok, ^component_module} = Recomposer.define(definition, component_module, helpers)
-
-            %Components.Recomposer{
-              name: name,
-              module: component_module,
-              function: :call,
-              source_code: definition
+              memo: Map.get(definition, "memo"),
+              source_code: definition,
+              count: Map.get(definition, "count", 1)
             }
 
           "plug" ->
