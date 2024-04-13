@@ -96,14 +96,6 @@ defmodule Kraken.Define.Pipeline do
               source_code: definition
             }
 
-          #          "clone" ->
-          #            Map.get(definition, "to") || raise "Missing 'to'"
-          #
-          #            %Components.Clone{
-          #              name: name,
-          #              to: build_components(definition["to"], pipeline_module, helpers)
-          #            }
-
           "dead_end" ->
             %Components.DeadEnd{name: name}
 

@@ -4,11 +4,11 @@ defmodule Kraken.UtilsTest do
 
   describe "struct_to_map" do
     test "simple case" do
-      assert %{decomposed: false} = Utils.struct_to_map(%ALF.IP{})
+      assert %{composed: false} = Utils.struct_to_map(%ALF.IP{})
     end
 
     test "for list" do
-      assert [%{decomposed: false}, %{}] = Utils.struct_to_map([%ALF.IP{}, %ALF.IP{}])
+      assert [%{composed: false}, %{}] = Utils.struct_to_map([%ALF.IP{}, %ALF.IP{}])
     end
 
     test "nested case" do
@@ -21,9 +21,9 @@ defmodule Kraken.UtilsTest do
 
       assert %{
                event: %{
-                 event: [%{decomposed: false}, %{}]
+                 event: [%{composed: false}, %{}]
                },
-               history: [%{decomposed: false}, %{}]
+               history: [%{composed: false}, %{}]
              } = Utils.struct_to_map(struct)
     end
   end
