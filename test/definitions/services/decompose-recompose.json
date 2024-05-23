@@ -1,0 +1,58 @@
+{
+  "name": "decompose-recompose",
+  "client": {
+    "module": "octopus.elixir-module-client",
+    "start": {
+      "code": [
+        "defmodule DecomposeRecompose do",
+          "defmodule Decomposer do",
+            "def call(event) do",
+              "string = event[\"string\"]",
+              "new_events = Enum.map(String.split(string), fn(str) -> %{\"string\" => str} end)",
+              "current_event = %{\"string\" => \"!\"}",
+              "%{\"new-events\" => new_events, \"current-event\" => current_event}",
+            "end",
+          "end",
+
+          "defmodule Recomposer do",
+            "def call(%{\"event\" => event, \"events\" => prev_events}) do",
+              "string = event[\"string\"]",
+              "prev_strings = Enum.map(prev_events, fn(event) -> event[\"string\"] end)",
+              "string = Enum.join(prev_strings ++ [string], \" \")",
+              "if String.length(string) >= 10 do",
+                "%{\"event\" => %{\"string\" => string}, \"stored\" => []}",
+              "else",
+                "stored_events = prev_events ++ [event]",
+                "%{\"stored\" => stored_events, \"event\" => nil}",
+              "end",
+            "end",
+          "end",
+        "end"
+      ]
+    }
+  },
+  "interface": {
+    "decompose": {
+      "input": {
+        "string": {
+          "type": "string"
+        }
+      },
+      "call": {
+        "module": "DecomposeRecompose.Decomposer",
+        "function": "call"
+      }
+    },
+    "recompose": {
+      "input": {
+        "string": {
+          "type": "string"
+        }
+      },
+      "call": {
+        "module": "DecomposeRecompose.Recomposer",
+        "function": "call"
+      }
+    }
+  }
+}

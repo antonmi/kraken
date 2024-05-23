@@ -57,7 +57,7 @@ defmodule Kraken.Define.GotoTest do
   end
 
   describe "goto without condition (true by default)" do
-    @goto_true_components [
+    @components [
       %{
         "type" => "goto",
         "name" => "my-goto",
@@ -69,15 +69,15 @@ defmodule Kraken.Define.GotoTest do
       }
     ]
 
-    @goto_true_pipeline %{
+    @pipeline %{
       "name" => "GotoTruePipeline",
-      "components" => @goto_true_components
+      "components" => @components
     }
 
     test "define and call pipeline" do
-      Pipeline.define(@goto_true_pipeline)
+      Pipeline.define(@pipeline)
       apply(Kraken.Pipelines.GotoTruePipeline, :start, [])
-      Process.sleep(100)
+      Process.sleep(10)
 
       assert apply(Kraken.Pipelines.GotoTruePipeline, :call, [%{"x" => 1}]) == %{"x" => 1}
     end
