@@ -42,7 +42,7 @@ defmodule Kraken.MixProject do
 
   defp deps do
     [
-      {:alf, "0.12.0"},
+      {:alf, "0.12.1"},
       {:octopus, "0.5.1"},
       {:plug_cowboy, "~> 2.6"},
       {:finch, "~> 0.16"},

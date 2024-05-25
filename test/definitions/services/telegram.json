@@ -1,7 +1,7 @@
 {
   "name": "telegram",
   "client": {
-    "module": "octopus.elixir-module-client",
+    "module": "octopus.lambda",
     "start": {
       "code": [
         "defmodule Telegram do",
