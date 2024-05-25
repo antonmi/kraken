@@ -278,55 +278,84 @@ The pipeline definition is:
       "transform": {"counter":  "args['counter'] + 1"}
     },
     {
-      "type": "clone",
-      "name": "clone",
-      "to": [
-        {
-          "type": "stage",
-          "name": "get-followers",
-          "service": {"name": "github", "function": "get_followers"},
-          "prepare": {"username":  "args['username']"},
-          "transform": {"followers":  "args['followers']"}
-        },
-        {
-          "type": "switch",
-          "prepare": {
-            "count": "length(args['followers'])",
-            "counter": "args['counter']",
-            "limit": "args['limit']"
-          },
-          "condition": "if args['count'] > 0 && args['counter'] < args['limit'], do: \"branch1\", else: \"branch2\"",
-          "branches": {
-            "branch1": [
-              {
-                "type": "stage",
-                "name": "find-closest",
-                "service": {"name": "levenshtein", "function": "closest"},
-                "prepare": {"name":  "args['username']", "names":  "args['followers']"},
-                "transform": {"closest":  "args['closest']"}
-              },
-              {
-                "type": "stage",
-                "name": "reassign-vars",
-                "transform": {"username": "args['closest']", "followers": "hidden"}
-              },
-              {
-                "type": "goto",
-                "to": "repeat",
-                "condition": "true"
-              }
-            ],
-            "branch2": [{"type": "dead-end"}]
+      "type": "composer",
+      "name": "clone-event",
+      "memo": null,
+      "service": {
+        "name": "clone-service",
+        "function": "clone"
+      },
+      "prepare": {
+        "event": "args",
+        "memo": "memo"
+      },
+      "compose": {
+        "events": "args['events']",
+        "memo": "args['memo']"
+      }
+    },
+    {
+      "type": "switch",
+      "condition": "if args['report'], do: \"output\", else: \"next-steps\"",
+      "branches": {
+        "output": [
+          {
+            "type": "stage",
+            "name": "print",
+            "service": {"name": "io-inspect", "function": "print"},
+            "prepare": {"value":  "args"}
           }
-        }
-      ]
+        ],
+        "next-steps": [
+          {
+            "type": "stage",
+            "name": "get-followers",
+            "service": {"name": "github", "function": "get_followers"},
+            "prepare": {"username":  "args['username']"},
+            "transform": {"followers":  "args['followers']"}
+          },
+          {
+            "type": "switch",
+            "prepare": {
+              "count": "length(args['followers'])",
+              "counter": "args['counter']",
+              "limit": "args['limit']"
+            },
+            "condition": "if args['counter'] > 0 && args['counter'] < args['limit'], do: \"continue\", else: \"done\"",
+            "branches": {
+              "continue": [
+                {
+                  "type": "stage",
+                  "name": "find-closest",
+                  "service": {"name": "levenshtein", "function": "closest"},
+                  "prepare": {"name":  "args['username']", "names":  "args['followers']"},
+                  "transform": {"closest":  "args['closest']"}
+                },
+                {
+                  "type": "stage",
+                  "name": "reassign-vars",
+                  "transform": {"username": "args['closest']", "followers": "hidden"}
+                },
+                {
+                  "type": "goto",
+                  "to": "repeat",
+                  "condition": "true"
+                }
+              ],
+              "done": [{"type": "dead-end"}]
+            }
+          }
+        ]
+      }
     }
   ]
 }
+
 ```
 One can see several components here:
 - "stage" - for calling of underlying services.
-- "switch", "clone", "goto" for directing the "event".
+- "composer" - for creating a copy for output.
+- "switch" and "goto" for directing the "event".
 
 Stages have the "prepare", "service", and "transform" sections.
 For example the "get-user" component:
